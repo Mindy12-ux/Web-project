@@ -1,0 +1,15 @@
+﻿industry_code,name,sort_order,for_stats,for_wish
+cafe,카페,1,1,1
+bakery,베이커리·디저트,2,1,1
+korean,한식,3,1,1
+foreign,중식·일식·양식,4,1,1
+snack,분식·간편식,5,1,1
+pub,주점,6,1,1
+stay,펜션·민박·캠핑,7,1,1
+hotel,호텔·모텔,8,1,0
+craft,공방·체험·기념품,9,1,1
+beauty,미용·뷰티,10,1,1
+grocery,식료품점,11,1,1
+mart,편의점·슈퍼,12,1,0
+medical,병의원·약국,13,1,0
+other,기타,99,0,1
