@@ -1,0 +1,6 @@
+﻿office_id,region_code,role_type,dept_name,phone,url,description,data_date
+1,4833000000,vacant,양산시청 (빈집 관리기관),055-392-3034,https://www.yangsan.go.kr/portal/board/post/list.do?bcIdx=794&mid=0205031600,빈집 매입·임차·정비 문의,2026-10-12
+2,4833000000,permit,양산시 건축과,055-392-2114,https://www.yangsan.go.kr/portal/contents.do?mid=0506010000,대수선·증축·용도변경 인허가 문의 (대표번호로 건축과 연결),2026-10-12
+3,5279000000,vacant,고창군청 민원봉사과,063-560-2121,https://www.gochang.go.kr,빈집 매입·임차·정비 문의 (빈집 담당 부서 확인 전 임시 창구),2026-10-12
+4,5279000000,permit,고창군청 민원봉사과,063-560-2121,https://www.gochang.go.kr,대수선·증축·용도변경 인허가 문의 (건축 담당 부서 확인 전 임시 창구),2026-10-12
+5,5279000000,lodging,고창군청 민원봉사과,063-560-2121,https://www.gochang.go.kr,농어촌민박 신고 문의 (민박 담당 부서 확인 전 임시 창구),2026-10-12
