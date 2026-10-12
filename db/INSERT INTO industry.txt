@@ -1,0 +1,16 @@
+INSERT INTO industry (industry_code, name, sort_order, for_stats, for_wish) VALUES
+('cafe', '카페', 1, TRUE, TRUE),
+('bakery', '베이커리·디저트', 2, TRUE, TRUE),
+('korean', '한식', 3, TRUE, TRUE),
+('foreign', '중식·일식·양식', 4, TRUE, TRUE),
+('snack', '분식·간편식', 5, TRUE, TRUE),
+('pub', '주점', 6, TRUE, TRUE),
+('stay', '펜션·민박·캠핑', 7, TRUE, TRUE),
+('hotel', '호텔·모텔', 8, TRUE, FALSE),
+('craft', '공방·체험·기념품', 9, TRUE, TRUE),
+('beauty', '미용·뷰티', 10, TRUE, TRUE),
+('grocery', '식료품점', 11, TRUE, TRUE),
+('mart', '편의점·슈퍼', 12, TRUE, FALSE),
+('medical', '병의원·약국', 13, TRUE, FALSE),
+('other', '기타', 99, FALSE, TRUE)
+ON DUPLICATE KEY UPDATE name=VALUES(name), sort_order=VALUES(sort_order), for_stats=VALUES(for_stats), for_wish=VALUES(for_wish);
