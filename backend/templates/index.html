@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel" style="text-align:center; padding:72px 16px;">
+  <h1 style="font-size:44px; margin:0 0 12px;">빈집을 잇다</h1>
+  <p style="color:var(--text-sub); margin:0 0 28px;">지방 창업 후보지를 한 곳에서 조사하고 비교하세요.</p>
+  <a class="btn btn-primary" style="padding:12px 24px; font-size:16px; text-decoration:none;"
+     href="{{ url_for('houses.map_page') }}">빈 집 보러가기</a>
+</section>
+{# TODO(B): 대표 이미지(static/img/), 이번 주 인기 지역 TOP 3 #}
+{% endblock %}
