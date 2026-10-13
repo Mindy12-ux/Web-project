@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}마이페이지 · 빈집을 잇다{% endblock %}
+{% block head %}<meta name="csrf-token" content="{{ auth_csrf }}"><link rel="stylesheet" href="{{ url_for('static',filename='css/mypage.css') }}">{% endblock %}
+{% block content %}
+<div class="member-layout">
+{% include "partials/member_sidebar.html" %}
+<div class="member-page">
+<h1>마이페이지</h1>
+<p class="member-intro">내 정보와 정보 제공 동의 설정을 관리하세요.</p>
+<section class="panel" aria-labelledby="profile-title">
+<h2 id="profile-title">내 정보</h2>
+<dl class="kv">
+<div><dt>아이디</dt><dd>{{ member.member_id }}</dd></div>
+<div><dt>닉네임</dt><dd>{{ member.nickname }}</dd></div>
+<div><dt>회원 권한</dt><dd>{{ {'user':'일반 사용자','official':'공무원','admin':'관리자'}.get(member.role, member.role) }}</dd></div>
+<div><dt>가입일</dt><dd>{{ member.created_at.strftime('%Y-%m-%d') }}</dd></div>
+{% if member.email %}<div><dt>이메일</dt><dd>{{ member.email }}</dd></div>{% endif %}
+{% if member.role == 'official' %}<div><dt>소속 지역</dt><dd>{{ member.affiliation or '미지정' }}</dd></div>{% endif %}
+<div><dt>정보 제공 동의</dt><dd>{{ '동의' if member.share_consent else '미동의' }}</dd></div>
+</dl>
+</section>
+<section class="panel"><h2>정보 제공 동의</h2>
+{% if updated %}<p role="status">동의 설정을 저장했어요.</p>{% endif %}
+<form method="post" action="{{ url_for('mypage.mypage') }}">
+<input type="hidden" name="csrf_token" value="{{ auth_csrf }}">
+<label><input type="checkbox" name="share_consent" {% if consent %}checked{% endif %}>(선택) 내가 찜한 빈집과 활동 기록을 해당 지역 지자체 담당 공무원이 닉네임과 함께 볼 수 있도록 동의합니다. 동의하지 않아도 모든 기능을 쓸 수 있고, 활동은 이름 없이 통계에만 포함됩니다. 마이페이지에서 언제든 바꿀 수 있습니다.</label>
+<button class="btn" type="submit">동의 설정 저장</button></form></section>
+</div>
+</div>
+{% endblock %}

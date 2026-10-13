@@ -1,0 +1,78 @@
+/* A 담당 내 찜·마이페이지 전용 */
+.member-page { max-width: 1040px; margin: 32px auto 64px; }
+.member-page h1 { font-size: 28px; letter-spacing: -.7px; margin: 0 0 18px; }
+.member-page > h2 { margin-top: 32px; }
+.member-page > .panel { background: #fff; padding: 24px; border: 1px solid #e5e8e6; border-radius: 16px; margin-bottom: 24px; }
+.member-page .kv { margin-bottom: 0; gap: 20px; }
+.member-page .kv dd { margin-top: 5px; }
+.saved-summary { background: #fff; border: 1px solid #e5e8e6; border-radius: 14px; padding: 18px 22px; margin: 16px 0 24px; }
+.saved-summary p { margin: 5px 0; color: #68716c; font-size: 13px; }
+.saved-summary p:first-child { color: #25392d; font-size: 17px; font-weight: 700; margin-bottom: 9px; }
+.saved-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,340px),1fr)); gap: 20px; }
+.saved-grid .card { background: #fff; border: 1px solid #e3e7e4; border-radius: 16px; padding: 24px; box-shadow: 0 3px 14px rgba(25,40,30,.035); }
+.saved-grid h2 { font-size: 19px; margin: 0 0 10px; }
+.saved-grid .card > p { font-size: 13px; color: #737c76; line-height: 1.8; padding-bottom: 16px; border-bottom: 1px solid #edf0ed; }
+.saved-edit > p { margin: 16px 0; }
+.saved-edit > p > label { display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 600; color: #46564b; }
+.saved-edit textarea, .saved-edit select { width: 100%; font: inherit; color: #283c30; background: #fff; border: 1px solid #dce2dd; border-radius: 8px; padding: 10px 12px; }
+.saved-edit textarea { min-height: 86px; resize: vertical; }
+.saved-edit textarea:focus-visible, .saved-edit select:focus-visible { outline: 2px solid #2d6a4f; outline-offset: 2px; }
+.saved-edit fieldset { border: 1px solid #e6ebe7; border-radius: 10px; padding: 12px; margin: 0 0 20px; }
+.saved-edit legend { font-size: 13px; color: #46564b; padding: 0 5px; }
+.saved-edit fieldset label { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #5d6861; margin: 5px 8px 5px 0; }
+.saved-edit input[type=checkbox] { accent-color: #2d6a4f; }
+.saved-edit button { padding: 10px 18px; }
+.saved-edit button[type=submit] { background: #2d6a4f; color: #fff; border-color: #2d6a4f; }
+.saved-edit button[data-unsave] { background: #fff; color: #86605b; border-color: #e3d5d2; margin-left: 6px; }
+.saved-edit button:disabled { opacity: .55; cursor: wait; }
+.saved-empty { background: #fff; border: 1px dashed #d9e1db; border-radius: 16px; padding: 64px 24px; text-align: center; color: #7b857e; }
+#saved-message:not(:empty) { padding: 12px 16px; background: #e9f3ec; border-radius: 8px; }
+@media(max-width:600px) { .member-page { margin-top: 20px; } .saved-grid .card { padding: 18px; } .member-page .kv { grid-template-columns: 1fr; } }
+
+/* 회원 영역: 왼쪽 메뉴 + 오른쪽 콘텐츠 */
+body:has(.member-layout) { background: #fff; }
+.member-layout { display: grid; grid-template-columns: 250px minmax(0,1fr); gap: 48px; width: 100%; max-width: 1160px; margin: 48px auto 80px; align-items: start; }
+.member-sidebar { position: sticky; top: 24px; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; background: #fff; }
+.member-sidebar a { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 26px 24px; color: #202624; text-decoration: none; font-size: 16px; font-weight: 700; border-bottom: 1px solid #f0f0f0; }
+.member-sidebar a:last-child { border-bottom: 0; }
+.member-sidebar a > span:last-child { font-size: 26px; color: #b9c0bc; line-height: 1; font-weight: 400; }
+.member-sidebar a:hover { background: #f7faf8; }
+.member-sidebar a.selected { color: #2d6a4f; background: #f4f9f6; }
+.member-sidebar a.selected > span:last-child { color: #2d6a4f; }
+.member-sidebar a:focus-visible { outline: 2px solid #2d6a4f; outline-offset: -4px; }
+.member-layout .member-page { min-width: 0; width: 100%; margin: 0; }
+.member-layout .member-page h1 { font-size: 28px; margin: 0 0 10px; color: #151c18; }
+.member-intro { color: #7a817d; font-size: 14px; margin: 0 0 28px; }
+.member-layout .saved-summary { border: 0; border-top: 1px solid #edf0ed; border-bottom: 1px solid #edf0ed; border-radius: 0; padding: 18px 0; margin: 0 0 24px; }
+.member-layout .saved-grid { grid-template-columns: repeat(auto-fit,minmax(min(100%,300px),1fr)); }
+@media(max-width:800px) { .member-layout { grid-template-columns: 190px minmax(0,1fr); gap: 24px; margin-top: 28px; } .member-sidebar a { padding: 22px 18px; font-size: 14px; } }
+@media(max-width:600px) { .member-layout { grid-template-columns: 1fr; gap: 28px; margin-top: 20px; } .member-sidebar { position: static; border-radius: 12px; } .member-sidebar nav { display: flex; } .member-sidebar a { flex: 1; padding: 16px; border: 0; } .member-sidebar a+a { border-left: 1px solid #eee; } }
+
+/* 페이지별 콘텐츠 양과 스크롤바로 인한 좌우 이동 방지 */
+html:has(.member-layout) { scrollbar-gutter: stable; }
+
+
+
+.saved-view[hidden], .saved-edit[hidden] { display: none; }
+.saved-details { margin: 20px 0 24px; }
+.saved-details dt { font-size: 12px; color: #7b857e; margin-top: 16px; }
+.saved-details dd { margin: 7px 0 0; color: #304538; line-height: 1.7; font-size: 14px; }
+.saved-memo { white-space: pre-wrap; overflow-wrap: anywhere; }
+.saved-tag { display: inline-block; background: #eff5f1; color: #2d6a4f; border-radius: 6px; padding: 3px 9px; margin: 3px 6px 3px 0; font-size: 12px; }
+.saved-view button { padding: 10px 18px; }
+.saved-view button[data-unsave] { margin-left: 6px; background: white; color: #86605b; border-color: #e3d5d2; }
+
+/* 조회 카드는 작게, 수정 중에는 기존 넓은 폼 유지 */
+.member-layout .saved-grid { grid-template-columns: 1fr; gap: 12px; }
+.saved-grid .card:not(:has(.saved-edit:not([hidden]))) { padding: 16px 20px; border-radius: 12px; }
+.saved-grid .card:not(:has(.saved-edit:not([hidden]))) h2 { font-size: 16px; margin-bottom: 4px; }
+.saved-grid .card:not(:has(.saved-edit:not([hidden]))) > p { margin: 4px 0 10px; padding-bottom: 8px; font-size: 12px; }
+.saved-view .saved-details { display: grid; grid-template-columns: 64px minmax(0,1fr); column-gap: 12px; row-gap: 6px; margin: 10px 0 12px; align-items: baseline; }
+.saved-view .saved-details dt { margin: 0; font-size: 12px; }
+.saved-view .saved-details dd { margin: 0; font-size: 13px; line-height: 1.5; min-width: 0; }
+.saved-view .saved-memo { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.saved-view .saved-tag { margin: 0 4px 3px 0; padding: 2px 7px; font-size: 11px; }
+.saved-view button { padding: 7px 12px; font-size: 12px; }
+@media(max-width:600px) { .saved-grid .card:not(:has(.saved-edit:not([hidden]))) { padding: 14px 16px; } }
+
+#saved-message:empty { display: none; }

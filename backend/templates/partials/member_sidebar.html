@@ -1,0 +1,6 @@
+<aside class="member-sidebar">
+<nav aria-label="회원 메뉴">
+<a href="{{ url_for('mypage.saved_page') }}" {% if request.endpoint == 'mypage.saved_page' %}class="selected" aria-current="page"{% endif %}><span>찜 목록</span><span aria-hidden="true">›</span></a>
+<a href="{{ url_for('mypage.mypage') }}" {% if request.endpoint == 'mypage.mypage' %}class="selected" aria-current="page"{% endif %}><span>마이페이지</span><span aria-hidden="true">›</span></a>
+</nav>
+</aside>

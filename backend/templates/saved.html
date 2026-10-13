@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}내 찜 · 빈집을 잇다{% endblock %}
+{% block head %}<meta name="csrf-token" content="{{ auth_csrf }}"><link rel="stylesheet" href="{{ url_for('static',filename='css/mypage.css') }}">{% endblock %}
+{% block content %}
+<div class="member-layout">
+{% include "partials/member_sidebar.html" %}
+<div class="member-page">
+<h1>찜 목록</h1>
+<p class="member-intro">관심 있는 빈집을 모아 보고, 나만의 계획을 남겨보세요.</p>
+
+{% include "partials/saved_cards.html" %}
+</div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static',filename='js/saved.js') }}"></script>{% endblock %}

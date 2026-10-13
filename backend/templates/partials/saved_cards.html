@@ -1,0 +1,30 @@
+<div class="saved-summary">
+<p>총 {{ houses|length }}건</p>
+<p>등급별: {% for name,count in grades.items() %}{{ name }} {{ count }}건 / {% else %}없음{% endfor %}</p>
+<p>지역별: {% for name,count in regions.items() %}{{ name }} {{ count }}건 / {% else %}없음{% endfor %}</p>
+</div>
+<p id="saved-message" role="status" aria-live="polite"></p>
+<div class="cards saved-grid">
+{% for house in houses %}
+<article class="card" data-house="{{ house.house_id }}">
+<h2>{{ house.region_name }} · 빈집 #{{ house.house_id }}</h2>
+<p>{{ house.grade_label }} · {{ house.main_use or '용도 정보 없음' }} · 준공 {{ house.built_year or '정보 없음' }} · 면적 {{ house.floor_area if house.floor_area is not none else '정보 없음' }}</p>
+<div class="saved-view">
+<dl class="saved-details">
+<dt>메모</dt><dd class="saved-memo">{{ house.memo or '등록한 메모가 없어요.' }}</dd>
+<dt>선호도</dt><dd>{{ (house.preference|string + ' / 5') if house.preference is not none else '선택 안 함' }}</dd>
+<dt>희망업종</dt><dd>{% for industry in house.industries %}<span class="saved-tag">{{ industry.name }}</span>{% else %}선택한 업종이 없어요.{% endfor %}</dd>
+</dl>
+<button class="btn btn-primary" type="button" data-edit="{{ house.house_id }}">수정하기</button>
+<button class="btn" type="button" data-unsave="{{ house.house_id }}">찜 취소</button>
+</div>
+<form class="saved-edit" data-house="{{ house.house_id }}" hidden>
+<p><label>메모 <textarea name="memo" maxlength="500">{{ house.memo or '' }}</textarea></label></p>
+<p><label>선호도 <select name="preference"><option value="">선택 안 함</option>{% for n in range(1,6) %}<option value="{{ n }}" {% if house.preference==n %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></label></p>
+<fieldset><legend>희망업종</legend>{% set selected=house.industries|map(attribute='industry_code')|list %}
+{% for industry in industries %}<label><input type="checkbox" name="industries" value="{{ industry.industry_code }}" {% if industry.industry_code in selected %}checked{% endif %}>{{ industry.name }}</label> {% endfor %}</fieldset>
+<button class="btn" type="submit">수정 저장</button>
+<button class="btn" type="button" data-cancel-edit>수정 취소</button>
+</form></article>
+{% else %}<p class="saved-empty">아직 찜한 빈집이 없어요. 관심 있는 빈집을 저장해 보세요.</p>{% endfor %}
+</div>
