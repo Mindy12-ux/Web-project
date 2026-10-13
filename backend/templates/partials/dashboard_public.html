@@ -1,0 +1,28 @@
+{# [담당 D] 일반 사용자용 대시보드 — 누구나(비회원 포함) 봄. 데이터: GET /api/trends?days= #}
+<section class="panel dash" id="dash-public">
+  <div class="dash-head">
+    <div>
+      <div class="eyebrow">모두에게 공개</div>
+      <h2>지역 동향</h2>
+    </div>
+    <div class="seg" role="group" aria-label="기간">
+      <button type="button" data-days="7" aria-pressed="true">최근 7일</button>
+      <button type="button" data-days="30" aria-pressed="false">30일</button>
+      <button type="button" data-days="90" aria-pressed="false">90일</button>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="label">지역·빈집 조회</div><div class="value" id="pub-views">–</div></div>
+    <div class="tile"><div class="label">새로 찜한 횟수</div><div class="value" id="pub-saves">–</div></div>
+    <div class="tile"><div class="label">관심 받은 지역 수</div><div class="value" id="pub-regions-n">–</div></div>
+  </div>
+
+  <div class="dash-grid">
+    <article class="card"><h3>많이 본 지역</h3><ol class="rank" id="pub-regions"></ol></article>
+    <article class="card"><h3>많이 본 빈집</h3><ol class="rank" id="pub-houses"></ol></article>
+    <article class="card"><h3>지금 많이 찜된 빈집</h3><ol class="rank" id="pub-saved"></ol></article>
+    <article class="card"><h3>많이 고른 희망업종</h3><ol class="rank" id="pub-industries"></ol></article>
+  </div>
+  <p class="mono" id="pub-note"></p>
+</section>

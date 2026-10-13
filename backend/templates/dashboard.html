@@ -1,0 +1,27 @@
+{# [담당 D] 대시보드 페이지
+   - 누구나: partials/dashboard_public.html
+   - 공무원(role == 'official')만: partials/dashboard_official.html 이 아래에 추가
+   JS: static/js/dashboard.js (모두), static/js/dashboard_admin.js (공무원만)
+   {% if %}는 서버에서 처리되므로, 일반 사용자 브라우저에는 공무원용 HTML·JS가 아예 전달되지 않습니다. #}
+{% extends "base.html" %}
+{% block title %}대시보드 · 빈집을 잇다{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+  {% include "partials/dashboard_public.html" %}
+
+  {% if me.role == 'official' %}
+    {% include "partials/dashboard_official.html" %}
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {# 순서 중요: dashboard.js(공통 도우미)를 먼저, 공무원용은 그다음에 #}
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  {% if me.role == 'official' %}
+    <script src="{{ url_for('static', filename='js/dashboard_admin.js') }}"></script>
+  {% endif %}
+{% endblock %}

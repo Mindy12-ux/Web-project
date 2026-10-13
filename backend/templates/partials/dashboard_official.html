@@ -1,0 +1,58 @@
+{# [담당 D] 공무원용 대시보드 — dashboard.html 에서 role == 'official' 일 때만 include 됨
+   데이터: GET /api/admin/stats?days=  (서버에서도 @official_required 로 한 번 더 막음) #}
+<section class="panel dash official-zone" id="dash-official">
+  <div class="dash-head">
+    <div>
+      <div class="eyebrow official">공무원 전용 · {{ official_region or "소속 시군 미설정" }}</div>
+      <h2>관심 기록 상세</h2>
+    </div>
+    <div class="seg" role="group" aria-label="기간">
+      <button type="button" data-days="7" aria-pressed="false">7일</button>
+      <button type="button" data-days="30" aria-pressed="true">최근 30일</button>
+      <button type="button" data-days="90" aria-pressed="false">90일</button>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <article class="card wide">
+      <h3>날짜별 조회·찜</h3>
+      <div class="legend"><span><i style="background:var(--green-700)"></i>조회</span><span><i style="background:var(--accent)"></i>찜</span></div>
+      <div class="cols" id="off-daily"></div>
+      <div class="axis" id="off-daily-axis"></div>
+    </article>
+
+    <article class="card">
+      <h3>찜한 시간대</h3>
+      <div class="cols" id="off-hours"></div>
+      <div class="axis"><span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>23시</span></div>
+    </article>
+
+    <article class="card">
+      <h3>찜에 담긴 희망업종</h3>
+      <ol class="rank" id="off-industries"></ol>
+    </article>
+
+    <article class="card wide">
+      <h3>관심 받은 빈집</h3>
+      <div class="table-wrap">
+        <table class="dash-table">
+          <thead><tr><th>빈집</th><th>위치</th><th>등급</th><th class="n">조회</th><th class="n">기간 내 찜</th><th class="n">현재 찜</th></tr></thead>
+          <tbody id="off-houses"></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="card wide">
+      <h3>회원 활동 <span class="mono">정보 제공에 동의한 회원만 표시</span></h3>
+      <div class="table-wrap">
+        <table class="dash-table">
+          <thead><tr><th>닉네임</th><th class="n">활동</th><th class="n">찜</th><th>마지막 활동</th></tr></thead>
+          <tbody id="off-members"></tbody>
+        </table>
+      </div>
+      <p class="mono" id="off-hidden"></p>
+      <div class="member-detail" id="off-member-detail"></div>
+    </article>
+  </div>
+  <p class="mono" id="off-note"></p>
+</section>
