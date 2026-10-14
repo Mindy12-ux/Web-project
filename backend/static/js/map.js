@@ -70,6 +70,7 @@
 
   function selectRegion(code) {
     state.region = code;
+    document.body.dataset.region = code;   // 지역별 배경 사진 (map.css)
     state.cluster = null; state.house = null; state.stores = null;
     renderTabs();
     loadClusters(true);
@@ -89,13 +90,32 @@
     }).catch(showError);
   }
 
+  // ── 처음 화면: 지역을 고르기 전 (대한민국 전체 + 시군별 전체 빈집 수) ──
+  function showOverview() {
+    state.view = "overview";
+    state.region = null; state.clusters = []; state.cluster = null; state.house = null; state.stores = null;
+    delete document.body.dataset.region;   // 지역 배경 사진 끄기
+    renderTabs();
+    clearStores();
+    var total = state.regions.reduce(function (n, r) { return n + r.house_count; }, 0);
+    side.innerHTML = '<div class="side-head"><p class="eyebrow">전체 지역</p>' +
+      "<h2>시군 " + state.regions.length + "곳 · 빈집 " + total + "채</h2>" +
+      '<p class="meta">지역 탭이나 지도의 숫자 원, 아래 목록을 눌러 보세요</p></div>' +
+      '<ul class="pick-list">' + state.regions.map(function (r) {
+        return '<li><button type="button" class="pick" data-action="region" data-code="' + esc(r.region_code) + '">' +
+          "<span><b>" + esc(r.name) + '</b></span><span class="count">' + r.house_count + "채</span></button></li>";
+      }).join("") + "</ul>";
+    drawClusters(true);
+  }
+
   function showIntro() {
     state.view = "intro";
     clearStores();
     markSelectedCluster();
     var r = currentRegion();
     var total = state.clusters.reduce(function (n, c) { return n + c.house_count; }, 0);
-    var html = '<div class="side-head"><p class="eyebrow">' + esc(r.name || "") + '</p>' +
+    var html = '<button type="button" class="side-back" data-action="overview">← 전체 지역</button>' +
+      '<div class="side-head"><p class="eyebrow">' + esc(r.name || "") + '</p>' +
       "<h2>리·동 " + state.clusters.length + "곳 · 빈집 " + total + "채</h2>" +
       '<p class="meta">지도의 숫자 원이나 아래 목록을 눌러 보세요</p></div>';
     if (!state.clusters.length) {
@@ -351,7 +371,9 @@
     var el = e.target.closest("[data-action]");
     if (!el || el.disabled) return;
     var a = el.dataset.action;
-    if (a === "intro") { state.cluster = null; showIntro(); }
+    if (a === "overview") showOverview();
+    else if (a === "region") selectRegion(el.dataset.code);
+    else if (a === "intro") { state.cluster = null; showIntro(); }
     else if (a === "list") { state.house = null; showList(); }
     else if (a === "cluster") selectCluster(el.dataset.code);
     else if (a === "house") selectHouse(el.dataset.id);
@@ -376,7 +398,7 @@
     kakao.maps.load(function () {
       clearTimeout(timer);
       mapEl.innerHTML = "";
-      map = new kakao.maps.Map(mapEl, { center: new kakao.maps.LatLng(35.43, 126.70), level: 9 });
+      map = new kakao.maps.Map(mapEl, { center: new kakao.maps.LatLng(36.0, 127.8), level: 13 });   // 대한민국 전체
       map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
       tip = new kakao.maps.CustomOverlay({ yAnchor: 1, zIndex: 5 });
       kakao.maps.event.addListener(map, "zoom_changed", renderClusterLayer);
@@ -391,6 +413,12 @@
 
   function drawClusters(fit) {
     if (!map) return;
+    if (!state.region) {                               // 지역 고르기 전: 대한민국 전체
+      if (fit) map.setBounds(new kakao.maps.LatLngBounds(
+        new kakao.maps.LatLng(33.1, 124.6), new kakao.maps.LatLng(38.6, 130.9)), 20, 20, 20, 20);
+      renderClusterLayer();
+      return;
+    }
     if (!state.clusters.length) {
       clearClusterOverlays();
       var r = currentRegion();
@@ -428,6 +456,20 @@
     clearClusterOverlays();
     var level = map.getLevel();
     mapEl.classList.toggle("is-far", level >= LABEL_LEVEL);
+
+    if (!state.region) {
+      // 지역 고르기 전: 시군마다 전체 빈집 수 원 하나 (누르면 그 지역으로)
+      state.regions.forEach(function (r) {
+        if (r.lat == null) return;
+        var b = clusterButton(r.house_count, r.name, r.name + " 빈집 " + r.house_count + "채, 눌러서 보기", [1, 0]);
+        b.el.classList.add("is-group");
+        b.el.addEventListener("click", function () { selectRegion(r.region_code); });
+        var overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(r.lat, r.lng), content: b.el, yAnchor: b.yAnchor, zIndex: 2 });
+        overlay.setMap(map);
+        clusterOverlays.push({ code: null, overlay: overlay, el: b.el });
+      });
+      return;
+    }
 
     if (level >= GROUP_LEVEL) {
       // 읍·면(상위 지역)별로 합치기: 빈집 수 합, 위치는 빈집 수로 가중 평균
@@ -513,8 +555,6 @@
   api("/api/regions").then(function (rows) {
     state.regions = rows;
     if (!rows.length) { side.innerHTML = '<p class="mapx-empty">지역 정보가 없어요.</p>'; return; }
-    // 빈집이 있는 첫 지역(가나다순: 고창군 → 양산시)으로 시작
-    var first = rows.filter(function (r) { return r.house_count > 0; })[0] || rows[0];
-    selectRegion(first.region_code);
+    showOverview();   // 처음엔 아무 지역도 고르지 않고 전체에서 시작
   }).catch(showError);
 })();

@@ -6,6 +6,16 @@
    ========================================================= */
 
 /* 1) 배치: 왼쪽 정보 칸 + 오른쪽 지도(화면 오른쪽 끝까지) */
+body.map-page { background: var(--surface); }   /* 메인 화면과 같은 흰 배경 */
+/* 지역을 고르면 배경이 그 지역 사진으로 (map.js 가 body 에 data-region 을 붙임). 흰 막을 얹어 글자가 읽히게 */
+body.map-page[data-region="5279000000"] {
+  background: linear-gradient(rgba(255, 255, 255, .5), rgba(255, 255, 255, .5)),
+              url("../img/region-gochang.jpg") center / cover fixed;   /* 고창군: 고창읍성 */
+}
+body.map-page[data-region="4833000000"] {
+  background: linear-gradient(rgba(255, 255, 255, .5), rgba(255, 255, 255, .5)),
+              url("../img/region-yangsan.jpg") center 45% / cover fixed;   /* 양산시: 폭포 (세로 사진이라 가운데쯤) */
+}
 .mapx { display: flex; flex-direction: column; gap: 14px; padding: 18px 0 0; }
 .mapx-body {
   display: grid; grid-template-columns: 360px 1fr; gap: 16px;
