@@ -3,7 +3,7 @@
    - 공무원(role == 'official')만: partials/dashboard_official.html 이 아래에 추가
    JS: static/js/dashboard.js (모두), static/js/dashboard_admin.js (공무원만)
    {% if %}는 서버에서 처리되므로, 일반 사용자 브라우저에는 공무원용 HTML·JS가 아예 전달되지 않습니다. #}
-{% extends "base.html" %}
+{% extends "index.html" %}
 {% block title %}대시보드 · 빈집을 잇다{% endblock %}
 
 {% block head %}
