@@ -220,7 +220,7 @@
 .site-foot a { color: inherit; }
 
 /* 메인이 아닌 화면: 내용이 짧아도 바닥글이 화면 맨 아래에 붙게 */
-body:not(.home) { min-height: 100vh; display: flex; flex-direction: column; }
+body:not(.home) { min-height: 100vh; display: flex; flex-direction: column; background: var(--surface); }   /* 모든 화면 흰 배경으로 통일 */
 body:not(.home) > main { flex: 1; width: 100%; align-content: start; }
 
 .home .site-foot {
