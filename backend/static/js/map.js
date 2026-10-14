@@ -7,6 +7,7 @@
   var tabs    = document.getElementById("regionTabs");
   var filters = document.getElementById("gradeFilters");
   var mapEl   = document.getElementById("kmap");
+  var cardTabsEl = document.getElementById("card-tabs");   // [담당 C] 카드 정보 탭 (partials/card_tabs.html) --지범 작업
 
   var state = {
     view: "intro",          // intro(리·동 목록) | list(빈집 목록) | detail(빈집 상세)
@@ -183,8 +184,19 @@
       // 찜하기 등 버튼 자리: 다른 담당이 data-house-id 로 연결
       '<div class="house-actions card-actions" id="houseActions" data-house-id="' + h.house_id + '"></div>' +
       '<section class="stores" id="storesBox" aria-label="주변 상가"><h3>주변 상가</h3>' +
-      '<p class="mapx-empty">주변 상가를 세는 중…</p></section>';
+      '<p class="mapx-empty">주변 상가를 세는 중…</p></section>' +
+      '<div id="cardTabsSlot"></div>';   // --지범 작업
     if (state.stores) renderStores();
+    mountCardTabs(h);   // --지범 작업
+  }
+
+  // [담당 C] 카드 정보 탭을 이 빈집의 리·동 기준으로 채워 상세 아래에 붙임 --지범 작업
+  // (왼쪽 칸이 다시 그려질 때 떨어져 나가도 cardTabsEl 은 계속 갖고 있으므로 다시 붙이면 됨)
+  function mountCardTabs(h) {   // --지범 작업
+    var slot = document.getElementById("cardTabsSlot");
+    if (!cardTabsEl || !slot) return;
+    slot.appendChild(cardTabsEl);
+    if (window.cardTabs) window.cardTabs.show(h.region_code);   // --지범 작업
   }
 
   // ── 반경별 주변 상가 ──────────────────────────────────
