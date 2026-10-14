@@ -45,11 +45,11 @@
 .side-head h2 { margin: 2px 0 0; font-size: 19px; }
 .side-head .meta { margin: 4px 0 0; font-size: 12px; color: var(--text-sub); }
 .side-back {
-  display: inline-flex; align-items: center; gap: 4px; margin: -4px 0 10px -6px;
-  padding: 4px 6px; border: 0; border-radius: var(--radius-sm); background: none;
-  font: inherit; font-size: 13px; font-weight: 600; color: var(--text-sub); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; margin: -6px 0 12px -10px;   /* --지범 작업: 상위 단계 버튼을 크게 */
+  padding: 8px 10px; border: 0; border-radius: var(--radius-sm); background: none;
+  font: inherit; font-size: 17px; font-weight: 700; color: #000; cursor: pointer;   /* --지범 작업: 크게·볼드·검정 */
 }
-.side-back:hover { background: var(--hover, #EEF1EC); color: var(--text); }
+.side-back:hover { background: var(--hover, #EEF1EC); color: #000; }
 
 /* 리·동 목록 · 빈집 목록: 누르는 줄 */
 .pick-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
