@@ -9,7 +9,7 @@ from flask import Blueprint, redirect, render_template, request, session, url_fo
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import get_conn
-from routes.common import fail
+from routes.common import fail, ok
 
 bp = Blueprint('auth', __name__)
 
@@ -100,6 +100,32 @@ def create_member(member_id, nickname, password, consent):
             return None, 200
         finally:
             cur.execute("SELECT RELEASE_LOCK('itda_signup')")
+
+
+@bp.get('/auth/check-duplicate')
+def check_duplicate():
+    """가입 화면에서 아이디 또는 닉네임 중복 여부만 확인합니다."""
+    field = request.args.get('field', '')
+    value = request.args.get('value', '').strip()
+    if field == 'member_id':
+        if not re.fullmatch(r'[A-Za-z0-9_]{4,50}', value):
+            return fail('아이디는 영문·숫자·밑줄로 4~50자 입력해 주세요.')
+        query = 'SELECT 1 FROM member WHERE member_id=%s LIMIT 1'
+    elif field == 'nickname':
+        if not 1 <= len(value) <= 30:
+            return fail('닉네임은 1~30자로 입력해 주세요.')
+        query = 'SELECT 1 FROM member WHERE nickname=%s LIMIT 1'
+    else:
+        return fail('확인할 수 없는 항목입니다.')
+    try:
+        with get_conn() as conn, conn.cursor() as cur:
+            cur.execute(query, (value,))
+            duplicate = cur.fetchone() is not None
+        response, status = ok({'duplicate': duplicate})
+        response.headers['Cache-Control'] = 'no-store'
+        return response, status
+    except pymysql.MySQLError:
+        return fail('중복 확인을 할 수 없어요. 잠시 후 다시 시도해 주세요.', 503)
 
 
 @bp.route('/auth/signup', methods=['GET', 'POST'])

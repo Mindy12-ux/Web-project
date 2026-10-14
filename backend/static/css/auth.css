@@ -20,3 +20,8 @@
 .auth-login form { gap: 12px; }
 .auth-login > p:last-child { margin-top: 24px; }
 @media (max-width: 520px) { .auth-panel { margin: 28px auto; padding: 28px 20px 22px; } .auth-panel h1 { font-size: 26px; } }
+
+/* 아이디·닉네임 입력칸 바로 아래 중복 확인 결과 */
+.auth-panel .auth-field-status { color: var(--green-700); }
+.auth-panel .auth-field-status.is-error { color: #a52c2c; }
+.auth-panel input[aria-invalid="true"] { border-color: #a52c2c; }

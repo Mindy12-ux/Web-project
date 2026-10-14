@@ -5,11 +5,13 @@
 <section class="panel auth-panel">
   <h1>회원가입</h1><p>계정을 만들고 관심 있는 빈집을 저장해 보세요.</p>
   {% if error %}<p class="auth-error" role="alert">{{ error }}</p>{% endif %}
-  <form method="post" action="{{ url_for('auth.signup') }}">
+  <form data-duplicate-url="{{ url_for('auth.check_duplicate') }}" method="post" action="{{ url_for('auth.signup') }}">
     <input type="hidden" name="csrf_token" value="{{ auth_csrf }}">
-    <label for="member_id">아이디</label><input id="member_id" name="member_id" value="{{ values.member_id }}" autocomplete="username" minlength="4" maxlength="50" pattern="[A-Za-z0-9_]{4,50}" required aria-describedby="id-help">
+    <label for="member_id">아이디</label><input id="member_id" name="member_id" value="{{ values.member_id }}" autocomplete="username" minlength="4" maxlength="50" pattern="[A-Za-z0-9_]{4,50}" required aria-describedby="id-help member_id-status">
+    <small id="member_id-status" class="auth-field-status" aria-live="polite" hidden></small>
     <small id="id-help">영문·숫자·밑줄 4~50자</small>
-    <label for="nickname">닉네임</label><input id="nickname" name="nickname" value="{{ values.nickname }}" maxlength="30" autocomplete="nickname" required>
+    <label for="nickname">닉네임</label><input id="nickname" name="nickname" value="{{ values.nickname }}" maxlength="30" autocomplete="nickname" required aria-describedby="nickname-status">
+    <small id="nickname-status" class="auth-field-status" aria-live="polite" hidden></small>
     <label for="password">비밀번호</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required aria-describedby="password-help"><small id="password-help">8~128자</small>
     <label for="password_confirm">비밀번호 확인</label><input id="password_confirm" name="password_confirm" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
     <label class="auth-consent"><input type="checkbox" name="share_consent" {% if consent %}checked{% endif %}><span>(선택) 내가 찜한 빈집과 활동 기록을 해당 지역 지자체 담당 공무원이 닉네임과 함께 볼 수 있도록 동의합니다. 동의하지 않아도 모든 기능을 쓸 수 있고, 활동은 이름 없이 통계에만 포함됩니다. 마이페이지에서 언제든 바꿀 수 있습니다.</span></label>
@@ -18,3 +20,5 @@
   <p>이미 계정이 있나요? <a href="{{ url_for('auth.login') }}">로그인</a></p>
 </section>
 {% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/signup.js') }}" defer></script>{% endblock %}
