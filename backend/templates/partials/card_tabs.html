@@ -1,0 +1,16 @@
+{# [담당 C] 빈집 카드 옆 정보 탭 (주변 상권 · 시공 업체 · 연락처)
+   쓰는 법: B의 map.html 카드 패널 안에 {% include "partials/card_tabs.html" %} 한 줄.
+   이 파일이 자기 CSS·JS를 직접 불러오므로 다른 곳에 추가할 것은 없다.
+   내용 채우기: 빈집 카드를 보여줄 때 map.js에서 cardTabs.show(house.region_code) 호출. #}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/card_tabs.css') }}">
+<section id="card-tabs" class="card-tabs" aria-label="이 동네 창업 정보">
+  <div class="tabs" role="tablist" aria-label="이 동네 정보">
+    <button type="button" role="tab" id="ct-tab-stats" data-tab="stats" aria-controls="ct-panel" aria-selected="true">주변 상권</button>
+    <button type="button" role="tab" id="ct-tab-contractors" data-tab="contractors" aria-controls="ct-panel" aria-selected="false" tabindex="-1">시공 업체</button>
+    <button type="button" role="tab" id="ct-tab-offices" data-tab="offices" aria-controls="ct-panel" aria-selected="false" tabindex="-1">연락처</button>
+  </div>
+  <div id="ct-panel" class="ct-panel" role="tabpanel" aria-live="polite">
+    <p class="notice">빈집 카드를 고르면 이 동네의 주변 상권, 시공 업체, 담당 부서 연락처를 보여 드려요.</p>
+  </div>
+</section>
+<script src="{{ url_for('static', filename='js/card_tabs.js') }}" defer></script>
