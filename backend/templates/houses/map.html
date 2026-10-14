@@ -3,6 +3,7 @@
 {% block title %}빈집 찾기 · 빈집을 잇다{% endblock %}
 {% block body_class %}map-page{% endblock %}
 {% block head %}
+<meta name="csrf-token" content="{{ auth_csrf }}">{# 찜하기 요청에 붙이는 보안 토큰 (A의 /api/saved 가 검사) #}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
 {% endblock %}
 
@@ -25,7 +26,7 @@
 
   <div class="mapx-body">
     {# 왼쪽 정보 칸: map.js 가 상황에 따라 내용을 바꿔 그림 (지역 안내 → 빈집 목록 → 빈집 상세·주변 상가) #}
-    <aside class="mapx-side" id="side" aria-live="polite">
+    <aside class="mapx-side" id="side" aria-live="polite" data-logged-in="{{ 1 if me.member_id else 0 }}">
       <p class="mapx-empty">지역 정보를 불러오는 중…</p>
     </aside>
 

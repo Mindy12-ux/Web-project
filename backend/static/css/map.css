@@ -124,3 +124,23 @@
 .mapx-canvas.is-far .cluster .label { display: none; }
 .mapx-canvas.is-far .cluster.is-group .label { display: block; }
 .mapx-canvas .cluster.is-group .dot { background: var(--green-900); }
+
+/* 찜하기: 상세 맨 위 줄 오른쪽 (← 목록 버튼과 한 줄) */
+.detail-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.detail-top .side-back { margin: -4px 0 0 -6px; }
+.save-btn {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: 999px;
+  background: var(--surface); color: var(--text);
+  font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.save-btn svg { width: 16px; height: 16px; fill: none; stroke: var(--accent); stroke-width: 2; transition: transform .15s; }
+.save-btn:hover { border-color: var(--accent); }
+.save-btn:hover svg { transform: scale(1.12); }
+.save-btn[aria-pressed="true"] { background: #FBEFE8; border-color: var(--accent); color: var(--accent); }
+.save-btn[aria-pressed="true"] svg { fill: var(--accent); }
+.save-btn:disabled { opacity: .6; cursor: wait; }
+.save-msg { min-height: 0; margin: 0 0 6px; text-align: right; font-size: 12px; color: var(--text-sub); }
+.save-msg:empty { display: none; }
+.save-msg a { color: var(--green-700); font-weight: 600; }

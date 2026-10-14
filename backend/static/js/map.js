@@ -174,20 +174,68 @@
       ["용도지역", none(h.zoning)]
     ];
     side.innerHTML =
+      '<div class="detail-top">' +
       '<button type="button" class="side-back" data-action="list">← ' + esc((findCluster(h.region_code) || {}).name || "빈집") + " 목록</button>" +
+      saveButton(h) + "</div>" +
+      '<p class="save-msg" id="saveMsg" role="status"></p>' +
       '<div class="side-head"><p class="eyebrow">' + esc(h.region_name) + "</p>" +
       "<h2>" + esc(h.main_use || "주택 유형 정보 없음") + ' <span class="' + gradeClass(h.grade_code) + '">' + esc(h.grade_label) + "</span></h2>" +
       '<p class="meta">조사 기준일 ' + esc(h.data_date) + " · 빈집 #" + h.house_id + "</p></div>" +
       '<dl class="kv">' + rows.map(function (r) {
         return "<div><dt>" + r[0] + "</dt><dd" + (r[1] == null ? ' class="none">정보 없음' : ">" + esc(r[1])) + "</dd></div>";
       }).join("") + "</dl>" +
-      // 찜하기 등 버튼 자리: 다른 담당이 data-house-id 로 연결
-      '<div class="house-actions card-actions" id="houseActions" data-house-id="' + h.house_id + '"></div>' +
       '<section class="stores" id="storesBox" aria-label="주변 상가"><h3>주변 상가</h3>' +
       '<p class="mapx-empty">주변 상가를 세는 중…</p></section>' +
       '<div id="cardTabsSlot"></div>';   // --지범 작업
     if (state.stores) renderStores();
     mountCardTabs(h);   // --지범 작업
+  }
+
+  // ── 찜하기 (A의 /api/saved 사용) ─────────────────────
+  // 누르면 바로 찜 저장, 한 번 더 누르면 찜 취소. 메모·선호도·희망업종은 A의 내 찜 화면(/saved)에서 고침
+  var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.6 7.7 3.8 4.5 7.2 4.5c2 0 3.5 1.1 4.8 2.8 1.3-1.7 2.8-2.8 4.8-2.8 3.4 0 5.6 3.2 4.4 6.6-1.7 4.8-9.2 9.4-9.2 9.4z"/></svg>';
+
+  function saveButton(h) {
+    return '<button type="button" class="save-btn" data-action="save" data-house-id="' + h.house_id + '" aria-pressed="' + !!h.is_saved + '">' +
+      HEART + "<span>" + (h.is_saved ? "찜함" : "찜하기") + "</span></button>";
+  }
+
+  function saveMessage(html) {
+    var box = document.getElementById("saveMsg");
+    if (box) box.innerHTML = html;
+  }
+
+  function toggleSave(btn) {
+    var h = state.house;
+    if (!h || Number(btn.dataset.houseId) !== h.house_id) return;
+    if (side.dataset.loggedIn !== "1") {
+      location.assign("/auth/login?next=" + encodeURIComponent("/map"));   // 로그인 후 지도로 돌아옴
+      return;
+    }
+    var token = (document.querySelector('meta[name="csrf-token"]') || {}).content;
+    var wasSaved = !!h.is_saved;
+    btn.disabled = true;
+    saveMessage("");
+    fetch(wasSaved ? "/api/saved/" + h.house_id : "/api/saved", {
+      method: wasSaved ? "DELETE" : "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": token || "" },
+      body: wasSaved ? undefined : JSON.stringify({ house_id: h.house_id })
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        if (res.status === 401) { location.assign("/auth/login?next=" + encodeURIComponent("/map")); return; }
+        // 이미 찜돼 있음(409) / 이미 취소돼 있음(404) 도 결과는 같은 상태로 맞춤
+        var nowSaved = res.ok ? !wasSaved : res.status === 409 ? true : (res.status === 404 && wasSaved) ? false : null;
+        if (nowSaved === null) throw new Error(body.error || "찜을 처리하지 못했어요");
+        if (!state.house || state.house.house_id !== h.house_id) return;   // 그사이 다른 집으로 옮겼으면 그대로 둠
+        h.is_saved = nowSaved;
+        btn.setAttribute("aria-pressed", String(nowSaved));
+        btn.querySelector("span").textContent = nowSaved ? "찜함" : "찜하기";
+        saveMessage(nowSaved ? '찜했어요 · <a href="/saved">내 찜 보기</a>' : "찜을 취소했어요");
+      });
+    }).catch(function (err) {
+      saveMessage(esc(err.message));
+    }).then(function () { btn.disabled = false; });
   }
 
   // [담당 C] 카드 정보 탭을 이 빈집의 리·동 기준으로 채워 상세 아래에 붙임 --지범 작업
@@ -260,6 +308,7 @@
     else if (a === "list") { state.house = null; showList(); }
     else if (a === "cluster") selectCluster(el.dataset.code);
     else if (a === "house") selectHouse(el.dataset.id);
+    else if (a === "save") toggleSave(el);
     else if (a === "radius") { state.radius = Number(el.dataset.radius); loadStores(); }
     else if (a === "industry") { state.industry = state.industry === el.dataset.code ? null : el.dataset.code; loadStores(); }
   });
