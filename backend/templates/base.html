@@ -22,6 +22,7 @@
         <a href="{{ url_for('mypage.mypage') }}">내 찜</a>
         {% if me.role == 'official' %}<a href="{{ url_for('admin.dashboard') }}">관리 대시보드</a>{% endif %}
         <form method="post" action="{{ url_for('auth.logout') }}" style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ auth_csrf }}">
           <button class="btn" type="submit">{{ me.nickname }} · 로그아웃</button>
         </form>
       {% else %}
