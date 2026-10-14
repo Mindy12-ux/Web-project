@@ -289,7 +289,7 @@
 
     if (d.stores.length) {
       html += '<ul class="store-list">' + d.stores.slice(0, 30).map(function (s, i) {
-        return '<li><div>' + esc(s.name) + " <span>" + esc(s.industry_name) + '</span></div><span class="dist">' + dist(s.distance_m) + "</span></li>";
+        return '<li><div>' + storeLink(s, i) + " <span>" + esc(s.industry_name) + '</span></div><span class="dist">' + dist(s.distance_m) + "</span></li>";   // --지범 작업: 가게 이름을 링크로
       }).join("") + "</ul>";
     } else {
       html += '<p class="mapx-empty">반경 안에 표시할 가게가 없어요' + (d.total ? "." : " (상가 데이터가 비어 있을 수 있어요).") + "</p>";
@@ -298,6 +298,53 @@
       "지도에는 가까운 순 " + d.limit + "곳까지" + (d.data_date ? " · 상가 데이터 기준일 " + esc(d.data_date) : "") + "</p>";
     box.innerHTML = html;
   }
+
+  // ── 가게 이름 링크 + 마우스를 올리면 나오는 안내 카드 ── --지범 작업
+  // 가게 데이터에는 사진·평점·영업시간이 없어서, DB에 있는 정보만 카드로 보여 주고
+  // 사진·리뷰는 이름을 누르면 열리는 카카오맵 검색으로 넘긴다.
+  var storeCard = document.createElement("div");   // --지범 작업
+  storeCard.className = "store-card";
+  storeCard.hidden = true;
+  storeCard.setAttribute("role", "tooltip");
+  document.body.appendChild(storeCard);
+
+  function kakaoPlaceUrl(s) {   // --지범 작업
+    var area = String(s.address || "").split(" ").slice(1, 3).join(" ");   // 예: "고창군 고창읍" (같은 이름 가게 구분용)
+    return "https://map.kakao.com/link/search/" + encodeURIComponent((s.name + " " + area).trim());
+  }
+
+  function storeLink(s, i) {   // --지범 작업
+    return '<a class="store-link" href="' + esc(kakaoPlaceUrl(s)) + '" target="_blank" rel="noopener noreferrer" data-store="' + i + '">' + esc(s.name) + "</a>";
+  }
+
+  function hideStoreCard() { storeCard.hidden = true; }   // --지범 작업
+
+  function showStoreCard(link) {   // --지범 작업
+    var s = state.stores && state.stores.stores[Number(link.dataset.store)];
+    if (!s) return;
+    storeCard.innerHTML = '<p class="sc-name">' + esc(s.name) + "</p>" +
+      '<p class="sc-kind">' + esc([s.industry_name, s.category].filter(Boolean).join(" · ")) + "</p>" +
+      (s.address ? '<p class="sc-row">' + esc(s.address) + "</p>" : "") +
+      '<p class="sc-row">빈집 동네 중심에서 ' + dist(s.distance_m) + "</p>" +
+      '<p class="sc-hint">이름을 누르면 카카오맵에서 사진·리뷰를 볼 수 있어요</p>';
+    storeCard.hidden = false;
+    var w = storeCard.offsetWidth, h = storeCard.offsetHeight;
+    var r = link.getBoundingClientRect(), panel = side.getBoundingClientRect();
+    var x = panel.right + 12, y = r.top - 8, below = false;       // 넓은 화면: 왼쪽 칸 오른쪽 옆에
+    if (x + w > window.innerWidth - 8) {                          // 좁은 화면: 가게 이름 바로 아래에
+      x = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)); y = r.bottom + 6; below = true;
+    }
+    if (y + h > window.innerHeight - 8) y = below ? r.top - h - 6 : window.innerHeight - h - 8;
+    storeCard.style.left = x + "px";
+    storeCard.style.top = Math.max(8, y) + "px";
+  }
+
+  side.addEventListener("mouseover", function (e) { var l = e.target.closest(".store-link"); if (l) showStoreCard(l); });   // --지범 작업
+  side.addEventListener("mouseout", function (e) { if (e.target.closest(".store-link")) hideStoreCard(); });   // --지범 작업
+  side.addEventListener("focusin", function (e) { var l = e.target.closest(".store-link"); if (l) showStoreCard(l); });   // --지범 작업: 키보드
+  side.addEventListener("focusout", hideStoreCard);   // --지범 작업
+  side.addEventListener("click", hideStoreCard);   // --지범 작업: 화면이 바뀌면 카드도 닫기
+  window.addEventListener("scroll", hideStoreCard, true);   // --지범 작업
 
   // ── 왼쪽 칸 클릭 (한곳에서 처리) ──────────────────────
   side.addEventListener("click", function (e) {

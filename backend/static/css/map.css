@@ -49,7 +49,7 @@
   padding: 8px 10px; border: 0; border-radius: var(--radius-sm); background: none;
   font: inherit; font-size: 17px; font-weight: 700; color: #000; cursor: pointer;   /* --지범 작업: 크게·볼드·검정 */
 }
-.side-back:hover { background: var(--hover, #EEF1EC); color: var(--text); }
+.side-back:hover { background: var(--hover, #EEF1EC); color: #000; }
 
 /* 리·동 목록 · 빈집 목록: 누르는 줄 */
 .pick-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -97,6 +97,21 @@
 }
 .store-list li span { color: var(--text-sub); font-size: 12px; }
 .store-list .dist { font-family: var(--mono); font-size: 12px; color: var(--text-sub); white-space: nowrap; }
+
+/* 가게 이름 링크 + 마우스를 올리면 나오는 안내 카드 --지범 작업 */
+.store-list .store-link { color: var(--text); font-size: 13px; font-weight: 600; text-decoration: none; }
+.store-list .store-link:hover, .store-list .store-link:focus-visible { color: var(--green-700); text-decoration: underline; }
+.store-card {
+  position: fixed; z-index: 1000; width: 260px; padding: 14px 16px;
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(24, 38, 30, .18); pointer-events: none;
+}
+.store-card[hidden] { display: none; }
+.store-card p { margin: 0; }
+.store-card .sc-name { margin-bottom: 2px; font-size: 16px; font-weight: 700; }
+.store-card .sc-kind { margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--green-700); }
+.store-card .sc-row { margin-bottom: 4px; font-size: 13px; color: var(--text); overflow-wrap: anywhere; }
+.store-card .sc-hint { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-sub); }
 .stores-note { margin: 10px 0 0; font-size: 12px; color: var(--text-sub); }
 
 /* 5) 지도 위 표시: 가게 점 */
