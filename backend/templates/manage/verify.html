@@ -1,0 +1,27 @@
+{# [담당 D] 공무원 인증 — 지자체가 받은 초대 코드를 입력해 공무원 계정으로 전환 #}
+{% extends "base.html" %}
+{% block title %}공무원 인증 · 빈집을 잇다{% endblock %}
+{% block content %}
+<section class="panel" style="max-width:520px">
+  <h2 style="margin-top:0">공무원 인증</h2>
+
+  {% if me.role == 'official' %}
+    <p class="notice"><b>{{ region_name or '소속 시군' }} 공무원 계정</b>으로 인증되어 있어요.</p>
+    <a class="btn btn-primary" href="{{ url_for('trends.dashboard') }}">대시보드로 가기</a>
+
+  {% elif me.role == 'admin' %}
+    <p class="notice">관리자 계정은 공무원 인증을 할 수 없어요. 회원 관리 화면에서 역할을 지정해 주세요.</p>
+
+  {% else %}
+    <p style="color:var(--text-sub)">지자체 담당 부서가 공문·공식 메일로 받은 초대 코드를 입력하면 공무원 계정으로 바뀌고, 소속 시군의 관심 기록 대시보드를 볼 수 있어요. 코드는 한 번만 쓸 수 있어요.</p>
+    {% if error %}<p class="notice" role="alert"><b style="color:var(--accent)">{{ error }}</b></p>{% endif %}
+    <form method="post" style="display:grid; gap:10px">
+      <input type="hidden" name="csrf_token" value="{{ auth_csrf }}">
+      <label for="code" style="font-weight:600">초대 코드</label>
+      <input id="code" name="code" required autocomplete="off" placeholder="BJ-XXXX-XXXX"
+             style="font:inherit; font-family:var(--mono); font-size:18px; letter-spacing:2px; padding:10px 12px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); text-transform:uppercase">
+      <button class="btn btn-primary" type="submit" style="padding:10px">인증하기</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

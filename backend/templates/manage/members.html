@@ -1,0 +1,98 @@
+{# [담당 D] 관리자: 회원 역할 관리 + 공무원 초대 코드 발급 #}
+{% extends "base.html" %}
+{% block title %}회원 관리 · 빈집을 잇다{% endblock %}
+{% block head %}
+<style>
+  .mg-table { width:100%; border-collapse:collapse; font-size:14px; }
+  .mg-table th, .mg-table td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  .mg-table th { font-size:12px; color:var(--text-sub); font-weight:600; }
+  .mg-wrap { overflow-x:auto; }
+  .mg-form { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .mg-form select { font:inherit; font-size:13px; padding:5px 6px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); }
+  .role { font-size:12px; font-weight:700; padding:2px 9px; border-radius:999px; background:var(--g3-bg); color:var(--g3-fg); }
+  .role.official { background:var(--g1-bg); color:var(--g1-fg); }
+  .role.admin { background:var(--g2-bg); color:var(--g2-fg); }
+  .issued { border:2px dashed var(--green-700); border-radius:var(--radius-md); padding:14px; background:var(--green-100); }
+  .issued code { font-family:var(--mono); font-size:24px; font-weight:700; letter-spacing:2px; }
+</style>
+{% endblock %}
+{% block content %}
+{% if error %}<p class="notice" role="alert"><b style="color:var(--accent)">{{ error }}</b></p>{% endif %}
+
+<section class="panel">
+  <h2 style="margin-top:0">공무원 초대 코드</h2>
+  {% if issued %}
+    <div class="issued">
+      <div>새 코드가 발급됐어요. <b>이 화면을 벗어나면 다시 볼 수 없으니</b> 지금 지자체 담당 부서에 공식 채널로 전달하세요.</div>
+      <p style="margin:10px 0 4px"><code id="issued-code">{{ issued.code }}</code></p>
+      <div class="mono">{{ issued.days }}일 동안 유효 · 1회용 · 받은 사람은 로그인 후 /official/verify 에서 입력</div>
+    </div>
+  {% endif %}
+  <form class="mg-form" method="post" action="{{ url_for('manage.issue_invite') }}" style="margin:12px 0">
+    <input type="hidden" name="csrf_token" value="{{ auth_csrf }}">
+    <label for="invite-region">소속 시군</label>
+    <select id="invite-region" name="region_code" required>
+      <option value="">선택</option>
+      {% for s in sigungu %}<option value="{{ s.region_code }}">{{ s.name }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-primary" type="submit">코드 발급</button>
+  </form>
+  <div class="mg-wrap">
+    <table class="mg-table">
+      <thead><tr><th>번호</th><th>소속 시군</th><th>발급</th><th>만료</th><th>사용</th><th></th></tr></thead>
+      <tbody>
+      {% for i in invites %}
+        <tr>
+          <td>#{{ i.invite_id }}</td><td>{{ i.region_name }}</td>
+          <td>{{ i.created_by }}<br><span class="mono">{{ i.created_at.strftime('%m-%d %H:%M') }}</span></td>
+          <td class="mono">{{ i.expires_at.strftime('%m-%d %H:%M') }}</td>
+          <td>{% if i.used_by %}{{ i.used_by }}<br><span class="mono">{{ i.used_at.strftime('%m-%d %H:%M') }}</span>
+              {% elif i.active %}<span class="role official">사용 가능</span>{% else %}<span class="role">만료</span>{% endif %}</td>
+          <td>{% if i.active %}
+            <form method="post" action="{{ url_for('manage.revoke_invite', invite_id=i.invite_id) }}">
+              <input type="hidden" name="csrf_token" value="{{ auth_csrf }}">
+              <button class="btn" type="submit">폐기</button>
+            </form>{% endif %}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" style="color:var(--text-muted)">발급한 코드가 없어요</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 style="margin-top:0">회원 역할</h2>
+  <div class="mg-wrap">
+    <table class="mg-table">
+      <thead><tr><th>아이디</th><th>닉네임</th><th>현재</th><th>정보 제공 동의</th><th>역할 변경</th></tr></thead>
+      <tbody>
+      {% for m in members %}
+        <tr>
+          <td>{{ m.member_id }}</td><td>{{ m.nickname }}</td>
+          <td><span class="role {{ m.role }}">{{ roles[m.role] }}</span>{% if m.region_name %} {{ m.region_name }}{% endif %}</td>
+          <td>{{ 'O' if m.share_consent else '–' }}</td>
+          <td>
+            {% if m.member_id == me.member_id %}<span class="mono">본인</span>{% else %}
+            <form class="mg-form" method="post" action="{{ url_for('manage.change_role', member_id=m.member_id) }}">
+              <input type="hidden" name="csrf_token" value="{{ auth_csrf }}">
+              <select name="role" aria-label="{{ m.member_id }} 역할">
+                {% for key, label in roles.items() %}<option value="{{ key }}" {% if key == m.role %}selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+              <select name="region_code" aria-label="{{ m.member_id }} 소속 시군">
+                <option value="">시군 (공무원만)</option>
+                {% for s in sigungu %}<option value="{{ s.region_code }}" {% if s.region_code == m.region_code %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+              </select>
+              <button class="btn" type="submit">변경</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="mono">역할을 바꾸면 그 회원이 다시 로그인해야 반영돼요. 초대 코드로 인증한 회원은 바로 반영돼요.</p>
+</section>
+{% endblock %}

@@ -10,7 +10,7 @@ from flask import Flask, session
 ROOT = Path(__file__).resolve().parents[1]      # 프로젝트 최상위 (backend의 한 단계 위)
 load_dotenv(ROOT / ".env")
 
-from routes import auth, mypage, main, houses, stores, contractors, events, trends, admin  # noqa: E402
+from routes import auth, mypage, main, houses, stores, contractors, events, trends, admin, manage  # noqa: E402
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-only-change-me")   # 세션 암호화 키
@@ -18,7 +18,7 @@ app.config["JSON_AS_ASCII"] = False
 app.json.ensure_ascii = False                    # JSON 응답에서 한글이 \uXXXX로 바뀌지 않게
 
 # 담당자별 Blueprint 등록 (새 파일을 만들 때만 여기에 한 줄 추가)
-for module in (auth, mypage, main, houses, stores, contractors, events, trends, admin):
+for module in (auth, mypage, main, houses, stores, contractors, events, trends, admin, manage):
     app.register_blueprint(module.bp)
 
 
