@@ -1,0 +1,34 @@
+/* [담당 C] 카드 정보 탭 전용 스타일. 공통 색·변수는 binjip.css 것을 그대로 쓴다 */
+.card-tabs { margin-top: 14px; }
+.ct-panel { min-height: 120px; }
+.ct-panel .notice + .notice { margin-top: 8px; }
+.ct-source { margin: 12px 0 0; font-size: 12px; color: var(--text-muted); }
+
+/* 주변 상권: 반경 선택 + 업종별 막대 */
+.ct-radius { margin-bottom: 10px; }
+.ct-radius .seg { margin: 0; }
+.ct-radius-label { margin: 0 0 6px; font-size: 12px; color: var(--text-sub); }
+.ct-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ct-bars li { display: grid; grid-template-columns: 8.5em 1fr 3em; align-items: center; gap: 8px; font-size: 13px; }
+.ct-bars .name { color: var(--text); overflow-wrap: anywhere; }
+.ct-bars .track { height: 12px; background: var(--green-100); border-radius: 999px; overflow: hidden; }
+.ct-bars .fill { display: block; height: 100%; background: var(--green-700); border-radius: 999px; min-width: 0; }
+.ct-bars .count { text-align: right; font-family: var(--mono); font-size: 12px; color: var(--text-sub); }
+.ct-bars li.is-zero .name, .ct-bars li.is-zero .count { color: var(--text-muted); }
+
+/* 시공 업체·연락처 목록 */
+.ct-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ct-item { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; background: var(--surface); }
+.ct-item h4 { margin: 0 0 4px; font-size: 15px; }
+.ct-item .sub { margin: 0 0 6px; font-size: 12px; color: var(--text-sub); }
+.ct-item .row { margin: 2px 0; font-size: 13px; overflow-wrap: anywhere; }
+.ct-item a { color: var(--green-700); font-weight: 600; }
+.ct-item .tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 6px; padding: 0; list-style: none; }
+.ct-item .tags li { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--g3-bg); color: var(--g3-fg); }
+.ct-item.is-missing { border-style: dashed; background: #FAFBF8; color: var(--text-muted); }
+.ct-item.is-missing h4 { color: var(--text-muted); font-weight: 600; }
+.ct-error { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+@media (max-width: 480px) {
+  .ct-bars li { grid-template-columns: 6.5em 1fr 2.6em; }
+}
