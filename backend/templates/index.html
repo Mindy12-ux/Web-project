@@ -17,6 +17,12 @@
     <svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17 L11 10 L19 17 V28 H3 Z"/><path d="M19 22 H25"/><path d="M23 18 L28 14 L33 18 V28 H23"/></svg>
     빈집을 <em>잇다</em>
   </a>
+  {# 오른쪽 앞: 바로가기 3개 (지금 보고 있는 화면은 굵게). 좁은 화면에서는 숨기고 ☰ 메뉴로 #}
+  <nav class="hdr-nav" aria-label="주요 메뉴">
+    <a href="{{ url_for('houses.map_page') }}" {% if request.endpoint == 'houses.map_page' %}aria-current="page"{% endif %}>빈집 찾기</a>
+    <a href="{{ url_for('trends.dashboard') }}" {% if request.endpoint == 'trends.dashboard' %}aria-current="page"{% endif %}>대시보드</a>
+    <a href="{{ url_for('mypage.saved_page') }}" {% if request.endpoint == 'mypage.saved_page' %}aria-current="page"{% endif %}>내 찜</a>
+  </nav>
   {# 오른쪽: 로그인/회원가입 버튼 + 펼치는 메뉴 (열고 닫기는 static/js/header.js) #}
   <div class="hdr-actions">
     {% if me.member_id %}
@@ -47,8 +53,8 @@
       <p class="hdr-menu-label">모든 메뉴</p>
       <ul>
         <li><a href="{{ url_for('houses.map_page') }}">빈집 찾기</a></li>
-        <li><a href="{{ url_for('mypage.mypage') }}">내 찜{% if not me.member_id %}<small>로그인 필요</small>{% endif %}</a></li>
-        <li><a href="{{ url_for('trends.trends_page') }}">대시보드</a></li>
+        <li><a href="{{ url_for('mypage.saved_page') }}">내 찜{% if not me.member_id %}<small>로그인 필요</small>{% endif %}</a></li>
+        <li><a href="{{ url_for('trends.dashboard') }}">대시보드</a></li>
         {% if me.role == 'official' %}
         <li><a href="{{ url_for('admin.dashboard') }}">관리 대시보드<small>공무원</small></a></li>
         {% endif %}
