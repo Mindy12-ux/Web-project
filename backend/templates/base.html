@@ -1,37 +1,4 @@
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}빈집을 잇다{% endblock %}</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/binjip.css') }}">
-  {% block head %}{% endblock %}
-</head>
-<body>
-<div class="page">
-  <header class="app-header">
-    <a class="brand" href="{{ url_for('main.index') }}">
-      <svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17 L11 10 L19 17 V28 H3 Z"/><path d="M19 22 H25"/><path d="M23 18 L28 14 L33 18 V28 H23"/></svg>
-      빈집을 잇다
-    </a>
-    <nav class="nav">
-      <a href="{{ url_for('houses.map_page') }}" {% if request.endpoint == 'houses.map_page' %}class="active"{% endif %}>빈집 찾기</a>
-      <a href="{{ url_for('trends.trends_page') }}" {% if request.endpoint == 'trends.trends_page' %}class="active"{% endif %}>지역 동향</a>
-      {% if me.member_id %}
-        <a href="{{ url_for('mypage.mypage') }}">내 찜</a>
-        {% if me.role == 'official' %}<a href="{{ url_for('admin.dashboard') }}">관리 대시보드</a>{% endif %}
-        <form method="post" action="{{ url_for('auth.logout') }}" style="display:inline">
-          <button class="btn" type="submit">{{ me.nickname }} · 로그아웃</button>
-        </form>
-      {% else %}
-        <a href="{{ url_for('auth.login') }}">로그인·가입</a>
-      {% endif %}
-    </nav>
-  </header>
-
-  {% block content %}{% endblock %}
-</div>
-{% block scripts %}{% endblock %}
-</body>
-</html>
+{# 모든 화면은 index.html(공통 머리글·바닥글)로 통일했습니다.
+   새 템플릿은 {% extends "index.html" %} 를 쓰세요.
+   예전처럼 base.html 을 이어받아도 그대로 index.html 로 연결되도록 남겨 둔 파일입니다. #}
+{% extends "index.html" %}

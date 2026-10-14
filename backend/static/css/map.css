@@ -1,0 +1,126 @@
+/* =========================================================
+   빈집을 잇다 — 빈집 찾기(지도) 화면 (map.css)  [담당 B]
+   색·글꼴은 binjip.css, 머리글·바닥글은 main.css 를 그대로 씁니다.
+   지역 탭(.seg)·등급 칩(.chip)·등급 배지(.grade)·숫자 원(.cluster)·카드(.card, .kv)도 binjip.css 것.
+   1) 배치  2) 위 고르기 줄  3) 왼쪽 정보 칸  4) 주변 상가  5) 지도 위 표시  6) 좁은 화면
+   ========================================================= */
+
+/* 1) 배치: 왼쪽 정보 칸 + 오른쪽 지도(화면 오른쪽 끝까지) */
+.mapx { display: flex; flex-direction: column; gap: 14px; padding: 18px 0 0; }
+.mapx-body {
+  display: grid; grid-template-columns: 360px 1fr; gap: 16px;
+  height: max(560px, calc(100vh - 230px));
+  padding-left: var(--gutter);
+}
+.mapx-map {
+  position: relative; min-width: 0;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg); overflow: hidden;
+  background: var(--map-water);
+}
+.mapx-canvas { position: absolute; inset: 0; }
+.mapx-map .map-note { position: absolute; z-index: 2; right: 12px; bottom: 12px; }
+.mapx-fallback {
+  position: absolute; inset: 0; display: grid; place-items: center; padding: 24px;
+  text-align: center; color: var(--text-sub); font-size: 14px; line-height: 1.7;
+}
+
+/* 2) 위: 제목 · 지역 탭 · 등급 칩 */
+.mapx-top {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  padding: 0 var(--gutter);
+}
+.mapx-top h1 { margin: 0 8px 0 0; font-size: 22px; }
+.mapx-top .seg, .mapx-top .filters { margin: 0; }
+.mapx-top .chip { font-size: 13px; }
+
+/* 3) 왼쪽 정보 칸 */
+.mapx-side {
+  overflow-y: auto; min-height: 0;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px;
+}
+.mapx-empty { margin: 24px 4px; color: var(--text-sub); font-size: 14px; line-height: 1.7; }
+.side-head { margin-bottom: 12px; }
+.side-head .eyebrow { margin: 0; font-size: 12px; color: var(--text-sub); }
+.side-head h2 { margin: 2px 0 0; font-size: 19px; }
+.side-head .meta { margin: 4px 0 0; font-size: 12px; color: var(--text-sub); }
+.side-back {
+  display: inline-flex; align-items: center; gap: 4px; margin: -4px 0 10px -6px;
+  padding: 4px 6px; border: 0; border-radius: var(--radius-sm); background: none;
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--text-sub); cursor: pointer;
+}
+.side-back:hover { background: var(--hover, #EEF1EC); color: var(--text); }
+
+/* 리·동 목록 · 빈집 목록: 누르는 줄 */
+.pick-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pick {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px; text-align: left; cursor: pointer;
+  border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface);
+  font: inherit; color: var(--text);
+}
+.pick:hover { border-color: var(--border-strong); background: #FAFBF8; }
+.pick b { font-size: 15px; }
+.pick small { display: block; margin-top: 2px; font-size: 12px; color: var(--text-sub); }
+.pick .count { font-family: var(--mono); font-size: 13px; color: var(--green-700); white-space: nowrap; }
+
+/* 빈집 상세 */
+.mapx-side .kv { margin-bottom: 12px; }
+.mapx-side .kv dd.none { color: var(--text-muted); font-weight: 400; }
+.house-actions:empty { display: none; }   /* 찜하기 등 버튼은 다른 담당이 여기에 연결 */
+
+/* 4) 주변 상가 */
+.stores { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+.stores h3 { margin: 0 0 10px; font-size: 16px; }
+.stores .seg { margin-bottom: 10px; }
+.stores .seg button { padding: 6px 12px; font-size: 13px; }
+.stores-total { margin: 0 0 10px; font-size: 13px; color: var(--text-sub); }
+.stores-total b { color: var(--text); }
+
+.stat-list { display: grid; gap: 2px; margin: 0 0 12px; padding: 0; list-style: none; }
+.stat {
+  width: 100%; display: grid; grid-template-columns: 92px 1fr 34px; align-items: center; gap: 8px;
+  padding: 5px 6px; border: 0; border-radius: var(--radius-sm); background: none;
+  font: inherit; font-size: 13px; color: var(--text); text-align: left; cursor: pointer;
+}
+.stat:hover { background: var(--hover, #EEF1EC); }
+.stat[aria-pressed="true"] { background: var(--green-100); font-weight: 700; }
+.stat:disabled { cursor: default; color: var(--text-muted); background: none; }
+.stat-bar { height: 8px; border-radius: 999px; background: #ECEFEA; overflow: hidden; }
+.stat-bar i { display: block; height: 100%; border-radius: inherit; background: var(--green-700); }
+.stat-n { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--text-sub); }
+
+.store-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.store-list li {
+  display: flex; justify-content: space-between; gap: 10px;
+  padding: 8px 2px; border-top: 1px solid var(--border); font-size: 13px;
+}
+.store-list li span { color: var(--text-sub); font-size: 12px; }
+.store-list .dist { font-family: var(--mono); font-size: 12px; color: var(--text-sub); white-space: nowrap; }
+.stores-note { margin: 10px 0 0; font-size: 12px; color: var(--text-sub); }
+
+/* 5) 지도 위 표시: 가게 점 */
+.store-dot {
+  display: block; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15);
+  cursor: pointer;
+}
+.store-dot:hover, .store-dot.is-on { transform: scale(1.5); }
+.store-tip {
+  padding: 4px 8px; border-radius: 6px; background: var(--text); color: #fff;
+  font-size: 12px; white-space: nowrap; transform: translateY(-16px);
+}
+
+/* 6) 좁은 화면: 지도 위, 정보 칸 아래 */
+@media (max-width: 860px) {
+  .mapx-body { grid-template-columns: 1fr; height: auto; padding: 0 var(--gutter); }
+  .mapx-map { order: -1; height: 62vh; border-radius: var(--radius-lg); }
+  .mapx-side { overflow: visible; }
+}
+
+/* 카카오맵 CustomOverlay 안의 숫자 원: 위치는 지도가 잡으므로 binjip.css 의 시안용 위치 지정을 끔 */
+.mapx-canvas .cluster { position: static; transform: none; }
+/* 멀리서 볼 때: 리·동 이름표 숨김, 읍·면으로 합친 원은 더 진한 색 + 이름표는 항상 표시 */
+.mapx-canvas.is-far .cluster .label { display: none; }
+.mapx-canvas.is-far .cluster.is-group .label { display: block; }
+.mapx-canvas .cluster.is-group .dot { background: var(--green-900); }

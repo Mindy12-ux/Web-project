@@ -1,10 +1,83 @@
-{% extends "base.html" %}
-{% block content %}
-<section class="panel" style="text-align:center; padding:72px 16px;">
-  <h1 style="font-size:44px; margin:0 0 12px;">빈집을 잇다</h1>
-  <p style="color:var(--text-sub); margin:0 0 28px;">지방 창업 후보지를 한 곳에서 조사하고 비교하세요.</p>
-  <a class="btn btn-primary" style="padding:12px 24px; font-size:16px; text-decoration:none;"
-     href="{{ url_for('houses.map_page') }}">빈 집 보러가기</a>
-</section>
-{# TODO(B): 대표 이미지(static/img/), 이번 주 인기 지역 TOP 3 #}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}빈집을 잇다{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/binjip.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+{# ── 머리글 (공통) ── #}
+<header class="home-header" id="homeHeader">
+  <a class="home-brand" href="{{ url_for('main.index') }}">
+    <svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17 L11 10 L19 17 V28 H3 Z"/><path d="M19 22 H25"/><path d="M23 18 L28 14 L33 18 V28 H23"/></svg>
+    빈집을 <em>잇다</em>
+  </a>
+  {# 오른쪽: 로그인/회원가입 버튼 + 펼치는 메뉴 (열고 닫기는 static/js/header.js) #}
+  <div class="hdr-actions">
+    {% if me.member_id %}
+      <a class="hdr-btn" href="{{ url_for('mypage.mypage') }}">{{ me.nickname }}님</a>
+    {% else %}
+      <a class="hdr-btn" href="{{ url_for('auth.login') }}">로그인/회원가입</a>
+    {% endif %}
+
+    <button class="hdr-menu-btn" id="hdrMenuBtn" type="button"
+            aria-expanded="false" aria-controls="hdrMenu" aria-label="메뉴 열기">
+      <svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <nav class="hdr-menu" id="hdrMenu" aria-label="전체 메뉴" hidden>
+      {% if me.member_id %}
+        <div class="hdr-menu-me">
+          <p><b>{{ me.nickname }}</b>님, 반가워요</p>
+          <form method="post" action="{{ url_for('auth.logout') }}">
+            <button type="submit">로그아웃</button>
+          </form>
+        </div>
+      {% else %}
+        <a class="hdr-menu-primary" href="{{ url_for('auth.login') }}">로그인/회원가입</a>
+      {% endif %}
+
+      <p class="hdr-menu-label">모든 메뉴</p>
+      <ul>
+        <li><a href="{{ url_for('houses.map_page') }}">빈집 찾기</a></li>
+        <li><a href="{{ url_for('mypage.mypage') }}">내 찜{% if not me.member_id %}<small>로그인 필요</small>{% endif %}</a></li>
+        <li><a href="{{ url_for('trends.trends_page') }}">대시보드</a></li>
+        {% if me.role == 'official' %}
+        <li><a href="{{ url_for('admin.dashboard') }}">관리 대시보드<small>공무원</small></a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+{# 본문: 보통 화면은 가운데 폭(.page) 안에 content 를 넣고, 메인처럼 화면 전체를 쓰는 곳은 main 블록을 통째로 바꿈 #}
+{% block main %}
+<main class="page">
+  {% block content %}{% endblock %}
+</main>
 {% endblock %}
+
+{# ── 바닥글 (공통) ── #}
+<footer class="site-foot">
+  <p><span>소속</span>에이콘 아카데미</p>
+  <p><span>팀</span>3팀 : 빈집을 '잇다'</p>
+  <div><span>이메일</span>
+    <ul class="site-foot-mails">
+      <li><a href="mailto:roran000@gmail.com">roran000@gmail.com</a></li>
+      <li><a href="mailto:wjsdnwls8523@gmail.com">wjsdnwls8523@gmail.com</a></li>
+      <li><a href="mailto:skclsdndla12@gmail.com">skclsdndla12@gmail.com</a></li>
+      <li><a href="mailto:min095879@gmail.com">min095879@gmail.com</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/header.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
