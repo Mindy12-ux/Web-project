@@ -51,9 +51,9 @@ CREATE TABLE IF NOT EXISTS vacant_house (
 ) ENGINE=InnoDB COMMENT='빈집'
 """
 
-conn = pymysql.connect(host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
-                       password=os.getenv("DB_PASSWORD"), database=os.getenv("DB_NAME"),
-                       charset="utf8mb4")
+conn = pymysql.connect(host=os.getenv("DB_HOST"), port=int(os.getenv("DB_PORT", "3306")),
+                       user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"),
+                       database=os.getenv("DB_NAME"), charset="utf8mb4")
 cur = conn.cursor()
 
 if "--reset" in sys.argv:

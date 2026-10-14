@@ -17,9 +17,9 @@ load_dotenv(ROOT / ".env")
 if not CSV.exists():
     raise SystemExit(f"{CSV} 없음 → python scripts/clean/clean_vacant_house.py 먼저 실행")
 
-conn = pymysql.connect(host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
-                       password=os.getenv("DB_PASSWORD"), database=os.getenv("DB_NAME"),
-                       charset="utf8mb4")
+conn = pymysql.connect(host=os.getenv("DB_HOST"), port=int(os.getenv("DB_PORT", "3306")),
+                       user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"),
+                       database=os.getenv("DB_NAME"), charset="utf8mb4")
 cur = conn.cursor()
 
 # 1) 부모 테이블 확인 (vacant_house가 grade_code, region을 참조하므로 먼저 채워져 있어야 함)

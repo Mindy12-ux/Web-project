@@ -9,9 +9,9 @@ ROOT = Path(__file__).resolve().parents[1]          # 이 파일 위치: 프로�
 CLEAN = ROOT / "data" / "clean"
 load_dotenv(ROOT / ".env")
 
-conn = pymysql.connect(host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
-                       password=os.getenv("DB_PASSWORD"), database=os.getenv("DB_NAME"),
-                       charset="utf8mb4")
+conn = pymysql.connect(host=os.getenv("DB_HOST"), port=int(os.getenv("DB_PORT", "3306")),
+                       user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"),
+                       database=os.getenv("DB_NAME"), charset="utf8mb4")
 cur = conn.cursor()
 
 # 1) industry 먼저 (store가 industry를 참조하므로)
