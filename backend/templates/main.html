@@ -1,0 +1,67 @@
+{% extends "index.html" %}
+{# 메인 화면 본문. 머리글·바닥글은 index.html 에 있습니다 #}
+{% block body_class %}home{% endblock %}
+
+{% block main %}
+{# 스크롤 길이만큼 stage가 화면에 고정되고, 그동안 1페이지 → 2페이지로 바뀝니다 (static/js/main.js) #}
+<main class="intro" id="intro">
+  <div class="stage" id="stage">
+
+    {# ── 1페이지 ── #}
+    <svg class="bigword" viewBox="0 0 1000 250" preserveAspectRatio="none" aria-hidden="true">
+      <text x="0" y="240" textLength="1000" lengthAdjust="spacingAndGlyphs">CONNECT</text>
+    </svg>
+
+    {# 대표 이미지: static/img/hero.jpg #}
+    <div class="photo" id="photo"
+         style="--photo: url('{{ url_for('static', filename='img/hero.jpg') }}')"></div>
+    <div class="photo-anchor" id="photoAnchor" aria-hidden="true"></div>
+    <div class="shade" aria-hidden="true"></div>
+
+    <h1 class="sr-only">빈집을 잇다 — 빈집 사업 정보 통합 웹서비스</h1>
+
+    <a class="find-btn" href="{{ url_for('houses.map_page') }}">
+      Search Houses
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+    </a>
+
+    <div class="hero-foot">
+      <div class="hero-foot-row">
+        <p class="tagline">CONNECTING EMPTY HOMES, SHAPING LOCAL FUTURES</p>
+        <p class="tiny">© 2026 빈집을 잇다</p>
+      </div>
+      <div class="hero-foot-row hero-foot-labels">
+        <span class="tiny">VACANT HOUSE</span>
+        <span class="tiny">LOCAL STARTUP</span>
+      </div>
+    </div>
+
+    {# ── 2페이지 ── #}
+    <section class="about" aria-labelledby="aboutTitle">
+      <p class="about-eyebrow">ABOUT</p>
+      <h2 id="aboutTitle">Empty Homes,<br>New Beginnings</h2>
+      <p>빈집은 찾을 수 있는데, 빈집으로 무엇을 해야 할지는 찾기 어렵습니다.
+        인구가 줄어드는 지역에서 집은 하나둘 비어 가고, 그 집으로 창업을 꿈꾸는 사람은
+        상권·인구·시공 업체·지자체 연락처를 여러 사이트에서 따로 찾아야 합니다.</p>
+      <p>빈집을 잇다는 흩어진 공공데이터를 한 화면에 모아 빈집을 사업 공간으로 검토하는 시간을 줄입니다.
+        비어 있던 집이 다시 가게가 되고 사람이 머무는 곳이 되도록, 지역과 사람을 잇습니다.</p>
+
+      {% if top %}
+      <ol class="about-top" aria-label="이번 주 인기 지역">
+        {% for r in top %}<li><b>{{ loop.index }}</b> {{ r.name }}</li>{% endfor %}
+      </ol>
+      {% endif %}
+
+      <a class="about-link" href="{{ url_for('houses.map_page') }}">
+        Explore All Houses
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+      </a>
+    </section>
+
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "index.html" %}
+{# [담당 B] 빈집 찾기: 위는 지역·등급 고르기, 아래 왼쪽은 빈집 정보·주변 상가, 오른쪽은 지도 #}
+{% block title %}빈집 찾기 · 빈집을 잇다{% endblock %}
+{% block body_class %}map-page{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
+{% endblock %}
+
+{% block main %}
+<main class="mapx">
+
+  <div class="mapx-top">
+    <h1>빈집 찾기</h1>
+    <div class="seg" id="regionTabs" role="group" aria-label="지역 선택"></div>
+    <div class="filters" id="gradeFilters" role="group" aria-label="등급 필터">
+      {% for g in grades %}
+      <label class="chip" title="{{ g.description }}">
+        <input type="checkbox" value="{{ g.grade_code }}" {% if g.is_default %}checked{% endif %}>
+        <span class="grade g{{ '0' if g.grade_code == 'NA' else g.grade_code }}">{{ g.label }}</span>
+        {{ g.description }}
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="mapx-body">
+    {# 왼쪽 정보 칸: map.js 가 상황에 따라 내용을 바꿔 그림 (지역 안내 → 빈집 목록 → 빈집 상세·주변 상가) #}
+    <aside class="mapx-side" id="side" aria-live="polite">
+      <p class="mapx-empty">지역 정보를 불러오는 중…</p>
+    </aside>
+
+    <div class="mapx-map">
+      <div id="kmap" class="mapx-canvas"></div>
+      <p class="map-note">빈집 위치는 리·동 중심 좌표예요</p>
+    </div>
+  </div>
+
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% if KAKAO_JS_KEY %}
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ KAKAO_JS_KEY }}&autoload=false"></script>
+{% endif %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}

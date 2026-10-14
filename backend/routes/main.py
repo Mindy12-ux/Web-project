@@ -9,16 +9,17 @@ except ImportError:
 bp = Blueprint("main", __name__)
 
 
-def _popular_regions():
-    if top_regions is None:                      # D의 함수가 아직 없을 때
+def popular_regions():
+    """이번 주 인기 지역 TOP 3. D의 함수가 없거나 실패해도 메인 화면은 뜨게 빈 목록"""
+    if top_regions is None:
         return []
     try:
         return top_regions(3)
-    except Exception as e:                       # 인기 지역 때문에 메인 화면이 죽지 않게
+    except Exception as e:
         print("top_regions 실패:", e)
         return []
 
 
 @bp.get("/")
 def index():
-    return render_template("index.html", top_regions=_popular_regions())
+    return render_template("main.html", top=popular_regions())
