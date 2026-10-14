@@ -142,9 +142,14 @@ def locked_seconds():
 
 
 @bp.route("/official/verify", methods=["GET", "POST"])
-@login_required
 def verify():
+    # 초대 링크(/official/verify?code=BJ-...)로 들어온 비회원은 로그인 후 같은 링크로 돌아오게 함.
+    # A의 login_required 는 next 에 경로만 넘겨 ?code= 가 사라지므로 여기서 직접 처리
+    if not session.get("member_id"):
+        return redirect(url_for("auth.login", next=request.full_path.rstrip("?")))
     error, status = None, 200
+    prefill = request.form.get("code") or request.args.get("code", "")
+    prefill = prefill.strip()[:20]          # 링크에 담겨 온 코드를 입력 칸에 미리 채움 (자동 제출은 하지 않음)
     if request.method == "POST" and session.get("role") == "user":
         if locked_seconds():
             error, status = f"코드를 여러 번 틀려 잠시 막혔어요. {locked_seconds() // 60 + 1}분 뒤에 다시 시도해 주세요.", 429
@@ -178,4 +183,5 @@ def verify():
             cur.execute("SELECT name FROM region WHERE region_code = %s", (session["region_code"],))
             row = cur.fetchone()
             region_name = row["name"] if row else None
-    return render_template("manage/verify.html", error=error, region_name=region_name), status
+    return render_template("manage/verify.html", error=error, region_name=region_name,
+                           prefill=prefill), status

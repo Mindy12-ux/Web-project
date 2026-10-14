@@ -25,7 +25,22 @@
     <div class="issued">
       <div>새 코드가 발급됐어요. <b>이 화면을 벗어나면 다시 볼 수 없으니</b> 지금 지자체 담당 부서에 공식 채널로 전달하세요.</div>
       <p style="margin:10px 0 4px"><code id="issued-code">{{ issued.code }}</code></p>
-      <div class="mono">{{ issued.days }}일 동안 유효 · 1회용 · 받은 사람은 로그인 후 /official/verify 에서 입력</div>
+      {% set invite_link = url_for('manage.verify', code=issued.code, _external=True) %}
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0">
+        <input id="issued-link" readonly value="{{ invite_link }}"
+               style="flex:1; min-width:0; font:inherit; font-family:var(--mono); font-size:13px; padding:8px 10px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:#fff">
+        <button class="btn" type="button" id="copy-link">링크 복사</button>
+      </div>
+      <div class="mono">{{ issued.days }}일 동안 유효 · 1회용 · 받은 사람이 링크를 열고 로그인(없으면 가입 후 다시 링크)하면 코드가 미리 채워져요</div>
+      <script>
+        document.getElementById("copy-link").addEventListener("click", function () {
+          var box = document.getElementById("issued-link"), btn = this;
+          box.select();
+          (navigator.clipboard ? navigator.clipboard.writeText(box.value) : Promise.reject())
+            .catch(function () { document.execCommand("copy"); })
+            .then(function () { btn.textContent = "복사됨"; });
+        });
+      </script>
     </div>
   {% endif %}
   <form class="mg-form" method="post" action="{{ url_for('manage.issue_invite') }}" style="margin:12px 0">

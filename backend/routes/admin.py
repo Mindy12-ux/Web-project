@@ -3,17 +3,37 @@
 회원 단위 정보는 share_consent(지자체 정보 제공 동의)가 TRUE인 회원만, 닉네임으로 보여 줍니다.
 """
 from datetime import date, timedelta
-from flask import Blueprint, session, redirect, url_for
+from functools import wraps
+from flask import Blueprint, session, redirect, url_for, request
 from db import get_conn
-from routes.auth import official_required
+from routes.auth import login_required
 from routes.common import ok, fail
 from routes.trends import get_days, REGION_NAME
 
 bp = Blueprint("admin", __name__)
 
 
+STAFF_ROLES = ("official", "admin")
+
+
+def staff_required(view):
+    """공무원 또는 관리자만. (A의 official_required 는 공무원만 통과시켜서 D가 따로 만듦)"""
+    @wraps(view)
+    @login_required
+    def wrapper(*args, **kwargs):
+        if session.get("role") not in STAFF_ROLES:
+            return fail("공무원·관리자만 볼 수 있습니다", 403)
+        return view(*args, **kwargs)
+    return wrapper
+
+
 def my_sigungu():
-    """공무원 소속 시군구 5자리 (예: '52790'). 없으면 None"""
+    """집계할 시군구 5자리 (예: '52790'). 없으면 None
+    - 공무원: 자기 소속 시군 (session["region_code"]) — 다른 시군은 볼 수 없음
+    - 관리자: 화면에서 고른 시군 (?sigungu=52790)"""
+    if session.get("role") == "admin":
+        code = request.args.get("sigungu", "")[:5]
+        return code if len(code) == 5 and code.isdigit() else None
     code = session.get("region_code")
     return code[:5] if code else None
 
@@ -26,11 +46,11 @@ def dashboard():
 
 
 @bp.get("/api/admin/stats")
-@official_required
+@staff_required
 def admin_stats():
     sgg = my_sigungu()
     if not sgg:
-        return fail("공무원 계정에 소속 시군(region_code)이 설정되지 않았습니다", 403)
+        return fail("집계할 시군이 없습니다 (공무원은 소속 시군 설정, 관리자는 시군 선택 필요)", 403)
     days = get_days()
     scope = "LEFT(e.region_code, 5) = %s AND e.created_at >= NOW() - INTERVAL %s DAY"
 
@@ -116,9 +136,11 @@ def admin_stats():
 
 
 @bp.get("/api/admin/members/<member_id>")
-@official_required
+@staff_required
 def admin_member(member_id):
     sgg = my_sigungu()
+    if not sgg:
+        return fail("집계할 시군이 없습니다", 403)
     with get_conn() as conn, conn.cursor() as cur:
         cur.execute("SELECT nickname, share_consent FROM member WHERE member_id = %s", (member_id,))
         m = cur.fetchone()
@@ -137,3 +159,26 @@ def admin_member(member_id):
     for e in events:
         e["created_at"] = e["created_at"].strftime("%Y-%m-%d %H:%M")
     return ok({"nickname": m["nickname"], "events": events})   # 메모·선호도는 개인 기록이라 제외
+
+
+# ---------------------------------------------------------------
+# [개발용 임시] 로그인 기능(A)이 완성되기 전, 가짜 계정으로 로그인한 것처럼 만들기
+# 사용: http://127.0.0.1:5000/dev/login-as/seed_official
+# --debug 로 실행했을 때만 작동. A의 로그인이 완성되면 이 함수는 지우세요.
+# ---------------------------------------------------------------
+from flask import current_app, abort  # noqa: E402
+
+
+@bp.get("/dev/login-as/<member_id>")
+def dev_login_as(member_id):
+    if not current_app.debug:
+        abort(404)
+    with get_conn() as conn, conn.cursor() as cur:
+        cur.execute("SELECT member_id, nickname, role, region_code FROM member WHERE member_id = %s",
+                    (member_id,))
+        m = cur.fetchone()
+    if not m:
+        return fail(f"{member_id} 회원이 없습니다. scripts/seed_events.py 를 먼저 실행하세요", 404)
+    session.clear()
+    session.update(m)            # member_id, nickname, role, region_code (A가 만들 로그인과 같은 키)
+    return redirect(url_for("trends.dashboard"))

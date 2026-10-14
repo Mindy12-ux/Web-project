@@ -1,9 +1,17 @@
-{# [담당 D] 공무원용 대시보드 — dashboard.html 에서 role == 'official' 일 때만 include 됨
-   데이터: GET /api/admin/stats?days=  (서버에서도 @official_required 로 한 번 더 막음) #}
+{# [담당 D] 공무원용 대시보드 — dashboard.html 에서 role 이 official·admin 일 때만 include 됨
+   데이터: GET /api/admin/stats?days=  (서버에서도 @staff_required 로 한 번 더 막음) #}
 <section class="panel dash official-zone" id="dash-official">
   <div class="dash-head">
     <div>
+      {% if me.role == 'admin' %}
+      <div class="eyebrow official">관리자 보기 ·
+        <select id="off-sigungu" aria-label="볼 시군 선택">
+          {% for s in sigungu_options %}<option value="{{ s.region_code[:5] }}">{{ s.name }}</option>{% endfor %}
+        </select>
+      </div>
+      {% else %}
       <div class="eyebrow official">공무원 전용 · {{ official_region or "소속 시군 미설정" }}</div>
+      {% endif %}
       <h2>관심 기록 상세</h2>
     </div>
     <div class="seg" role="group" aria-label="기간">

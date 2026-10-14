@@ -32,7 +32,13 @@ def dashboard():
             cur.execute("SELECT name FROM region WHERE region_code = %s", (session["region_code"],))
             row = cur.fetchone()
             official_region = row["name"] if row else None
-    return render_template("dashboard.html", official_region=official_region)
+    sigungu_options = []                        # 관리자: 볼 시군을 고르는 목록
+    if session.get("role") == "admin":
+        with get_conn() as conn, conn.cursor() as cur:
+            cur.execute("SELECT region_code, name FROM region WHERE `level` = 'sigungu' ORDER BY name")
+            sigungu_options = cur.fetchall()
+    return render_template("dashboard.html", official_region=official_region,
+                           sigungu_options=sigungu_options)
 
 
 @bp.get("/trends")

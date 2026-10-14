@@ -1,5 +1,5 @@
 /* [담당 D] 공무원용 대시보드
-   templates/dashboard.html 에서 role == 'official' 일 때만 불러옴 (dashboard.js 다음에)
+   templates/dashboard.html 에서 role 이 official·admin 일 때만 불러옴 (dashboard.js 다음에)
    데이터: GET /api/admin/stats?days=, GET /api/admin/members/<id> */
 
 (function () {
@@ -8,6 +8,9 @@
   const EVENT_LABEL = { view_region: "지역 보기", view_house: "빈집 보기", save: "찜", edit: "찜 수정",
                         unsave: "찜 취소", select_industry: "희망업종 선택" };
   const GRADE_LABEL = { "1": "1등급", "2": "2등급", "3": "3등급", "NA": "미산정" };
+  const sigunguSel = $("off-sigungu");          // 관리자 화면에만 있음 (공무원은 소속 시군 고정)
+  const sigunguQuery = () => sigunguSel ? `sigungu=${encodeURIComponent(sigunguSel.value)}` : "";
+  let currentDays = 30;
 
   /* 세로 막대 그리기: values = [{v, title, cls}] */
   function cols(el, values) {
@@ -20,7 +23,7 @@
   async function showMember(id) {
     const box = $("off-member-detail");
     try {
-      const d = await dash.get(`/api/admin/members/${encodeURIComponent(id)}`);
+      const d = await dash.get(`/api/admin/members/${encodeURIComponent(id)}?${sigunguQuery()}`);
       box.innerHTML = `<h3>${dash.esc(d.nickname)}님의 최근 활동</h3>
         <div class="table-wrap"><table class="dash-table">
           <thead><tr><th>시각</th><th>행동</th><th>위치</th><th>빈집</th><th>업종</th></tr></thead>
@@ -33,8 +36,9 @@
   }
 
   async function load(days) {
+    currentDays = days;
     try {
-      const d = await dash.get(`/api/admin/stats?days=${days}`);
+      const d = await dash.get(`/api/admin/stats?days=${days}&${sigunguQuery()}`);
 
       // 날짜별: 하루에 조회·찜 막대 두 개
       cols($("off-daily"), d.daily.flatMap(x => [
@@ -62,12 +66,13 @@
       $("off-hidden").textContent = d.hidden_members
         ? `동의하지 않은 회원 ${d.hidden_members}명의 활동은 위 집계에만 포함되고 이름은 표시하지 않아요.` : "";
       $("off-member-detail").innerHTML = "";
-      $("off-note").textContent = `최근 ${d.days}일, 소속 시군(${d.sigungu}) 기록만 집계했어요.`;
+      $("off-note").textContent = `최근 ${d.days}일, ${sigunguSel ? "선택한" : "소속"} 시군(${d.sigungu}) 기록만 집계했어요.`;
     } catch (e) {
       $("off-note").textContent = "공무원용 통계를 불러오지 못했어요: " + e.message;
     }
   }
 
   dash.bindDays(section, load);
+  if (sigunguSel) sigunguSel.addEventListener("change", () => load(currentDays));
   load(30);
 })();

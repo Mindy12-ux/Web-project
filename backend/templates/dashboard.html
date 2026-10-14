@@ -13,7 +13,7 @@
 {% block content %}
   {% include "partials/dashboard_public.html" %}
 
-  {% if me.role == 'official' %}
+ {% if me.role in ('official', 'admin') %}
     {% include "partials/dashboard_official.html" %}
   {% endif %}
 {% endblock %}
@@ -21,7 +21,7 @@
 {% block scripts %}
   {# 순서 중요: dashboard.js(공통 도우미)를 먼저, 공무원용은 그다음에 #}
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-  {% if me.role == 'official' %}
+  {% if me.role in ('official', 'admin') %} 
     <script src="{{ url_for('static', filename='js/dashboard_admin.js') }}"></script>
   {% endif %}
 {% endblock %}
