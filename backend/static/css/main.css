@@ -38,15 +38,15 @@
 }
 .home-brand svg { width: 26px; height: 26px; }
 .home-brand em { font-style: normal; color: var(--accent); }
-.home-header.is-dark .home-brand em { color: var(--accent-ring); }
+.home-header.is-dark .home-brand em { color: var(--accent-ring); } 
 /* 바로가기 3개 (빈집 찾기 · 대시보드 · 내 찜): 로그인 버튼 왼쪽 */
 .hdr-nav { display: flex; align-items: center; gap: clamp(20px, 3vw, 44px); margin: 0 clamp(16px, 2.4vw, 36px) 0 auto; }
-.hdr-nav a {
+.hdr-nav a { /*초기 버튼 모습*/
   position: relative; padding: 8px 0;
   color: inherit; text-decoration: none; font-size: 16px; font-weight: 700; white-space: nowrap;
-  transition: color .2s;
+  transition: color .2s; /* 0.2s에 걸쳐 변환 */
 }
-.hdr-nav a::after {                       /* 지금 보고 있는 화면 = 밑줄 */
+.hdr-nav a::after {                       /*초기버튼에서 밑줄이 생기는 코드 */
   content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px;
   background: currentColor; transform: scaleX(0); transition: transform .2s;
 }
@@ -71,7 +71,7 @@
 }
 .hdr-menu-btn:hover { background: var(--hover, #EEF1EC); }
 .hdr-menu-btn svg { width: 24px; height: 24px; }
-.hdr-menu-btn .icon-close, .hdr-menu-btn[aria-expanded="true"] .icon-open { display: none; }
+.hdr-menu-btn .icon-close, .hdr-menu-btn[aria-expanded="true"] .icon-open { display: none; } /* 메뉴버튼 header.js와 연결*/
 .hdr-menu-btn[aria-expanded="true"] .icon-close { display: block; }
 
 /* 사진 위(2페이지)일 때 */

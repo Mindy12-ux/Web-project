@@ -14,8 +14,9 @@
 {# ── 머리글 (공통) ── #}
 <header class="home-header" id="homeHeader">
   <a class="home-brand" href="{{ url_for('main.index') }}">
-    <svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17 L11 10 L19 17 V28 H3 Z"/><path d="M19 22 H25"/><path d="M23 18 L28 14 L33 18 V28 H23"/></svg>
-    빈집을 <em>잇다</em>
+    <svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 17 L11 10 L19 17 V28 H3 Z"/><path d="M19 22 H25"/><path d="M23 18 L28 14 L33 18 V28 H23"/></svg> <!-- 이미지가 아닌 점을 이어 선을 만든것.-->
+    빈집을 <em>잇다</em> <!-- fill: 도형내부 / stroke: 선 색상 / width : 선두께 / cap : 선 둥글게 / join : 모서리 둥글게-->
   </a>
   {# 오른쪽 앞: 바로가기 3개 (지금 보고 있는 화면은 굵게). 좁은 화면에서는 숨기고 ☰ 메뉴로 #}
   <nav class="hdr-nav" aria-label="주요 메뉴">
@@ -55,7 +56,7 @@
         <li><a href="{{ url_for('houses.map_page') }}">빈집 찾기</a></li>
         <li><a href="{{ url_for('mypage.saved_page') }}">내 찜{% if not me.member_id %}<small>로그인 필요</small>{% endif %}</a></li>
         <li><a href="{{ url_for('trends.dashboard') }}">대시보드</a></li>
-         {# 공무원 화면은 /dashboard 아래쪽에 함께 나오므로 따로 링크를 두지 않음 #}
+        {# 공무원 화면은 /dashboard 아래쪽에 함께 나오므로 따로 링크를 두지 않음 #}
         {% if me.role == 'user' %}
         <li><a href="{{ url_for('manage.verify') }}">공무원 인증<small>초대 코드</small></a></li>
         {% elif me.role == 'admin' %}
