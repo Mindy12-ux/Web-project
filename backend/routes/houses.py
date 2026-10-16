@@ -106,7 +106,10 @@ def houses_in_region():
             WHERE v.region_code = %s AND v.grade_code IN ({placeholders(grades)})
             ORDER BY g.sort_order, v.house_id
         """, (region, *grades))
-        return ok(cur.fetchall())
+        rows = cur.fetchall()
+    log_event("view_region", region)     # ← 추가: 리·동 단위 지역 보기
+    return ok(rows)
+    # return ok(cur.fetchall())
 
 
 def find_house(cur, house_id):

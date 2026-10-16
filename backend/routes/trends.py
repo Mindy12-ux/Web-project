@@ -58,17 +58,30 @@ def trends_data():
         cur.execute(f"""
             SELECT SUM(e.event_type IN ('view_region','view_house')) AS views,
                    SUM(e.event_type = 'save')                        AS saves,
-                   COUNT(DISTINCT e.region_code)                     AS regions
-            FROM interest_event e WHERE {since}""", (days,))
+                   COUNT(DISTINCT CASE WHEN r.`level` IN ('ri','emd')
+                                       THEN e.region_code END)       AS regions
+            FROM interest_event e
+            JOIN region r ON r.region_code = e.region_code
+            WHERE {since}""", (days,))
         summary = {k: int(v or 0) for k, v in cur.fetchone().items()}
 
-        # 2) 많이 본 지역 (지역 보기 + 그 지역 빈집 보기)
+        cur.execute(f"""
+            SELECT SUM(e.event_type IN ('view_region','view_house')) AS views,
+                   SUM(e.event_type = 'save')                        AS saves,
+                   COUNT(DISTINCT CASE WHEN r.`level` IN ('ri','emd')
+                                       THEN e.region_code END)       AS regions
+            FROM interest_event e
+            JOIN region r ON r.region_code = e.region_code
+            WHERE {since}""", (days,))
+
+        # 2) 많이 본 지역 (수정사항 - 리·동 단위만. 시군 단위 '지역 보기' 기록은 제외, '전북특별자치도 고창군'이 압도적으로 많이 나옴)
         cur.execute(f"""
             SELECT e.region_code, {REGION_NAME} AS name, COUNT(*) AS count
             FROM interest_event e
             JOIN region r ON r.region_code = e.region_code
             LEFT JOIN region p ON p.region_code = r.parents_code
             WHERE {since} AND e.event_type IN ('view_region','view_house')
+              AND r.`level` IN ('ri', 'emd')
             GROUP BY e.region_code ORDER BY count DESC LIMIT 5""", (days,))
         top_regions = cur.fetchall()
 

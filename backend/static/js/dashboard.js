@@ -24,7 +24,7 @@ window.dash = {
       </li>`).join("");
   },
   houseName(h) { return `${h.main_use || "빈집"} #${h.house_id}`; },
-  /* 기간 버튼 묶음 연결 */
+  /* 기간 버튼 묶음 연결, 기간 버튼 3개에 이벤트 감지 등록 */
   bindDays(section, onChange) {
     const buttons = section.querySelectorAll(".seg button");
     buttons.forEach(b => b.addEventListener("click", () => {
@@ -38,6 +38,7 @@ window.dash = {
   const section = document.getElementById("dash-public");
   const $ = id => document.getElementById(id);
 
+  /* 서버에서 통계받아 화면 채우기 */ 
   async function load(days) {
     try {
       const d = await dash.get(`/api/trends?days=${days}`);

@@ -5,7 +5,6 @@
        POST /manage/invites                  관리자: 초대 코드 발급 (원문은 이때 한 번만 보여 줌)
        POST /manage/invites/<id>/revoke      관리자: 안 쓴 코드 폐기
 
-A의 auth.py는 고치지 않고 login_required, valid_csrf를 가져다 씁니다.
 세션 키(member_id, role, region_code)는 A의 로그인과 같은 이름을 씁니다.
 """
 import hashlib
@@ -141,42 +140,69 @@ def locked_seconds():
     return max(0, int(until - time.time()))
 
 
+
+# get: 링크를 열거나 메뉴에서 들어올 때,  get요청으로 들어온 경우, if절은 시행하지 않고 코드를 입력하는 화면만 보여준다.
+# post: [인증하기] 버튼을 눌렀을 때, 코드를 검사하고 역할을 실제로 바꾼다
 @bp.route("/official/verify", methods=["GET", "POST"])
 def verify():
-    # 초대 링크(/official/verify?code=BJ-...)로 들어온 비회원은 로그인 후 같은 링크로 돌아오게 함.
+    
     # A의 login_required 는 next 에 경로만 넘겨 ?code= 가 사라지므로 여기서 직접 처리
-    if not session.get("member_id"):
+    
+    if not session.get("member_id"): # 로그인 여부 검증
         return redirect(url_for("auth.login", next=request.full_path.rstrip("?")))
+    
     error, status = None, 200
     prefill = request.form.get("code") or request.args.get("code", "")
     prefill = prefill.strip()[:20]          # 링크에 담겨 온 코드를 입력 칸에 미리 채움 (자동 제출은 하지 않음)
+    
+    # post 요청 + 이미 회원가입이 되어있는 상태인 경우에만 코드가 실행됨.
     if request.method == "POST" and session.get("role") == "user":
+        
+        # 코드를 5번 틀려 걸린 잠금(verify_locked_until)이 아직 풀리지 않았는지 검사
         if locked_seconds():
             error, status = f"코드를 여러 번 틀려 잠시 막혔어요. {locked_seconds() // 60 + 1}분 뒤에 다시 시도해 주세요.", 429
+        
+        # CSRF 검사: 폼으로 보낸 토큰이 세션의 토큰과 같은지 (다른 사이트가 위조한 요청 차단)
         elif not valid_csrf():
             error, status = "요청이 만료됐어요. 새로고침 후 다시 시도해 주세요.", 400
         else:
+
+             # 두 검사를 통과하면 초대 코드 확인
+
+            # 코드에 맞는 초대 코드 한 줄을 찾고, 찾은 줄을 invite 변수에 담는다.
             with get_conn() as conn, conn.cursor() as cur:
                 cur.execute("""SELECT invite_id, region_code FROM official_invite
                                WHERE code_hash = %s AND used_by IS NULL AND expires_at > NOW()
                                FOR UPDATE""", (hash_code(request.form.get("code", "")),))
                 invite = cur.fetchone()
+
+                
                 if invite:
+                    # 코드를 '사용됨'으로 표시한다. (사용자가 NULL -> 특정 회원 아이디로 바뀌면 사용된 것. 위의 select문에서도 'used_by IS NULL' 조건이 있음.) 
                     cur.execute("UPDATE official_invite SET used_by = %s, used_at = NOW() WHERE invite_id = %s",
                                 (session["member_id"], invite["invite_id"]))
+
+                    # DB에서 사용자 정보를 업데이트 한다. 
                     cur.execute("UPDATE member SET role = 'official', region_code = %s WHERE member_id = %s",
                                 (invite["region_code"], session["member_id"]))
                     conn.commit()
+
+            # 세션의 role, region_code 변경. 실패 기록 삭제, 대시보드로 이동. 정상적으로 작동되었다면 함수는 여기서 끝남
             if invite:
                 session["role"], session["region_code"] = "official", invite["region_code"]
                 session.pop("verify_fails", None)
                 return redirect(url_for("trends.dashboard"))
+
+            # invite를 찾지 못한 경우(인증 코드가 올바르지 않은 경우) 실패 횟수 +1 
             fails = session.get("verify_fails", 0) + 1
             session["verify_fails"] = fails
             if fails >= MAX_FAILS:
                 session["verify_locked_until"], session["verify_fails"] = time.time() + LOCK_SECONDS, 0
             error, status = "코드가 올바르지 않거나 만료됐어요.", 400
 
+
+    # get 방식으로 들어온 경우 아예 if문이 실행되지 않으므로 아래에 있는 코드블럭만이 실행된다.
+    # 아래의 'region_name'이 사용되는 경우 : 이미 공무원 유형으로 로그인 되어 있을 때. 
     region_name = None
     if session.get("region_code"):
         with get_conn() as conn, conn.cursor() as cur:
@@ -185,3 +211,13 @@ def verify():
             region_name = row["name"] if row else None
     return render_template("manage/verify.html", error=error, region_name=region_name,
                            prefill=prefill), status
+
+    # error, status : 초기에는 'None, 200'으로 셋팅. 웹페이지가 유효하지 않은 경우 저장값이 바뀌면서 해당 오류 메세지가 출력됨
+    # prefill : 관리자 계정에서 생성되는 url로 들어오는 경우는 get방식이므로 prefill 되고, 잘못된 코드를 입력해서 제출한 경우
+    # post 기능을 사용하는 것이므로 코드가 계속 남아있는다.    
+
+
+
+
+
+

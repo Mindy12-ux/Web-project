@@ -36,6 +36,7 @@ def my_sigungu():
         return code if len(code) == 5 and code.isdigit() else None
     code = session.get("region_code")
     return code[:5] if code else None
+# 관리자 권한이면 if문 실행, 관리자가 아닌 경우(공무원) code = session.get('region_code)가 실행됨.
 
 
 @bp.get("/admin/dashboard")
@@ -124,7 +125,7 @@ def admin_stats():
             WHERE {scope} AND m.share_consent = FALSE""", (sgg, days))
         hidden_members = cur.fetchone()["n"]
 
-    for d in (houses + members):                       # Decimal/datetime → JSON 친화 값
+    for d in [*houses, *members]:                        # Decimal/datetime → JSON 친화 값
         for k in ("views", "saves", "events"):
             if k in d:
                 d[k] = int(d[k] or 0)
