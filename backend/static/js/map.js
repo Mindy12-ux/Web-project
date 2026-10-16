@@ -3,20 +3,20 @@
    지도(카카오맵)를 못 불러와도 왼쪽 정보 칸만으로 끝까지 볼 수 있게 만들었습니다.
    API: /api/regions, /api/regions/<시군>/clusters, /api/houses, /api/houses/<id>, /api/houses/<id>/stores */
 (function () {
-  var side    = document.getElementById("side");
-  var tabs    = document.getElementById("regionTabs");
-  var filters = document.getElementById("gradeFilters");
-  var mapEl   = document.getElementById("kmap");
-  var cardTabsEl = document.getElementById("card-tabs");   // [담당 C] 카드 정보 탭 (partials/card_tabs.html) --지범 작업
+  const side    = document.getElementById("side");
+  const tabs    = document.getElementById("regionTabs");
+  const filters = document.getElementById("gradeFilters");
+  const mapEl   = document.getElementById("kmap");
+  const cardTabsEl = document.getElementById("card-tabs");   // [담당 C] 카드 정보 탭 (partials/card_tabs.html) --지범 작업
 
-  var state = {
+  const state = {
     view: "intro",          // intro(리·동 목록) | list(빈집 목록) | detail(빈집 상세)
     regions: [], region: null,
     clusters: [], cluster: null,
     houses: [], house: null,
     stores: null, radius: null, industry: null
   };
-  var map = null, clusterOverlays = [], storeOverlays = [], circle = null, tip = null;
+  let map = null, clusterOverlays = [], storeOverlays = [], circle = null, tip = null;
 
   // ── 도우미 ────────────────────────────────────────────
   function esc(v) {
@@ -33,9 +33,9 @@
     });
   }
   function gradeQuery() {
-    var boxes = filters.querySelectorAll("input[type=checkbox]");
+    const boxes = filters.querySelectorAll("input[type=checkbox]");
     if (!boxes.length) return "";                       // 등급표가 비어 있으면 전체
-    var on = [].filter.call(boxes, function (b) { return b.checked; }).map(function (b) { return b.value; });
+    const on = [].filter.call(boxes, function (b) { return b.checked; }).map(function (b) { return b.value; });
     return "grades=" + encodeURIComponent(on.join(","));
   }
   function gradeClass(code) { return "grade g" + (code === "NA" ? "0" : code); }
@@ -44,11 +44,11 @@
   function dist(m) { return m < 1000 ? Math.round(m) + "m" : (m / 1000).toFixed(m % 1000 ? 1 : 0) + "km"; }
   function clusterName(c) { return (c.parent_name && c.parent_name !== currentRegion().name ? c.parent_name + " " : "") + c.name; }
   function currentRegion() {
-    for (var i = 0; i < state.regions.length; i++) if (state.regions[i].region_code === state.region) return state.regions[i];
+    for (let i = 0; i < state.regions.length; i++) if (state.regions[i].region_code === state.region) return state.regions[i];
     return {};
   }
   function findCluster(code) {
-    for (var i = 0; i < state.clusters.length; i++) if (state.clusters[i].region_code === code) return state.clusters[i];
+    for (let i = 0; i < state.clusters.length; i++) if (state.clusters[i].region_code === code) return state.clusters[i];
     return null;
   }
   function showError(err) {
@@ -63,7 +63,7 @@
     }).join("");
   }
   tabs.addEventListener("click", function (e) {
-    var btn = e.target.closest("button[data-region]");
+    const btn = e.target.closest("button[data-region]");
     if (btn && btn.dataset.region !== state.region) selectRegion(btn.dataset.region);
   });
   filters.addEventListener("change", function () { loadClusters(false); });
@@ -97,7 +97,7 @@
     delete document.body.dataset.region;   // 지역 배경 사진 끄기
     renderTabs();
     clearStores();
-    var total = state.regions.reduce(function (n, r) { return n + r.house_count; }, 0);
+    const total = state.regions.reduce(function (n, r) { return n + r.house_count; }, 0);
     side.innerHTML = '<div class="side-head"><p class="eyebrow">전체 지역</p>' +
       "<h2>시군 " + state.regions.length + "곳 · 빈집 " + total + "채</h2>" +
       '<p class="meta">지역 탭이나 지도의 숫자 원, 아래 목록을 눌러 보세요</p></div>' +
@@ -112,9 +112,9 @@
     state.view = "intro";
     clearStores();
     markSelectedCluster();
-    var r = currentRegion();
-    var total = state.clusters.reduce(function (n, c) { return n + c.house_count; }, 0);
-    var html = '<button type="button" class="side-back" data-action="overview">← 전체 지역</button>' +
+    const r = currentRegion();
+    const total = state.clusters.reduce(function (n, c) { return n + c.house_count; }, 0);
+    let html = '<button type="button" class="side-back" data-action="overview">← 전체 지역</button>' +
       '<div class="side-head"><p class="eyebrow">' + esc(r.name || "") + '</p>' +
       "<h2>리·동 " + state.clusters.length + "곳 · 빈집 " + total + "채</h2>" +
       '<p class="meta">지도의 숫자 원이나 아래 목록을 눌러 보세요</p></div>';
@@ -136,7 +136,7 @@
     state.cluster = code;
     state.house = null;
     markSelectedCluster();
-    var c = findCluster(code);
+    const c = findCluster(code);
     if (map && c) map.panTo(new kakao.maps.LatLng(c.lat, c.lng));
     loadHouses();
   }
@@ -154,13 +154,13 @@
     state.view = "list";
     clearStores();
     markSelectedCluster();
-    var c = findCluster(state.cluster) || {};
-    var html = '<button type="button" class="side-back" data-action="intro">← ' + esc(currentRegion().name) + " 전체</button>" +
+    const c = findCluster(state.cluster) || {};
+    let html = '<button type="button" class="side-back" data-action="intro">← ' + esc(currentRegion().name) + " 전체</button>" +
       '<div class="side-head"><p class="eyebrow">' + esc(c.parent_name || "") + "</p>" +
       "<h2>" + esc(c.name || "") + "</h2>" +
       '<p class="meta">빈집 ' + state.houses.length + "채</p></div>";
     html += '<ul class="pick-list">' + state.houses.map(function (h) {
-      var sub = [none(h.built_year, function (y) { return y + "년 준공"; }), none(h.floor_area, area)].filter(Boolean).join(" · ");
+      const sub = [none(h.built_year, function (y) { return y + "년 준공"; }), none(h.floor_area, area)].filter(Boolean).join(" · ");
       return '<li><button type="button" class="pick" data-action="house" data-id="' + h.house_id + '">' +
         '<span><span class="' + gradeClass(h.grade_code) + '">' + esc(h.grade_label) + "</span> " +
         "<b>" + esc(h.main_use || "주택 유형 정보 없음") + "</b>" +
@@ -183,8 +183,8 @@
 
   function showDetail() {
     state.view = "detail";
-    var h = state.house;
-    var rows = [
+    const h = state.house;
+    const rows = [
       ["등급", h.grade_label + " · " + h.grade_description],
       ["준공연도", none(h.built_year, function (y) { return y + "년"; })],
       ["구조", none(h.structure)],
@@ -213,7 +213,7 @@
 
   // ── 찜하기 (A의 /api/saved 사용) ─────────────────────
   // 누르면 바로 찜 저장, 한 번 더 누르면 찜 취소. 메모·선호도·희망업종은 A의 내 찜 화면(/saved)에서 고침
-  var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.6 7.7 3.8 4.5 7.2 4.5c2 0 3.5 1.1 4.8 2.8 1.3-1.7 2.8-2.8 4.8-2.8 3.4 0 5.6 3.2 4.4 6.6-1.7 4.8-9.2 9.4-9.2 9.4z"/></svg>';
+  const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.6 7.7 3.8 4.5 7.2 4.5c2 0 3.5 1.1 4.8 2.8 1.3-1.7 2.8-2.8 4.8-2.8 3.4 0 5.6 3.2 4.4 6.6-1.7 4.8-9.2 9.4-9.2 9.4z"/></svg>';
 
   function saveButton(h) {
     return '<button type="button" class="save-btn" data-action="save" data-house-id="' + h.house_id + '" aria-pressed="' + !!h.is_saved + '">' +
@@ -221,19 +221,19 @@
   }
 
   function saveMessage(html) {
-    var box = document.getElementById("saveMsg");
+    const box = document.getElementById("saveMsg");
     if (box) box.innerHTML = html;
   }
 
   function toggleSave(btn) {
-    var h = state.house;
+    const h = state.house;
     if (!h || Number(btn.dataset.houseId) !== h.house_id) return;
     if (side.dataset.loggedIn !== "1") {
       location.assign("/auth/login?next=" + encodeURIComponent("/map"));   // 로그인 후 지도로 돌아옴
       return;
     }
-    var token = (document.querySelector('meta[name="csrf-token"]') || {}).content;
-    var wasSaved = !!h.is_saved;
+    const token = (document.querySelector('meta[name="csrf-token"]') || {}).content;
+    const wasSaved = !!h.is_saved;
     btn.disabled = true;
     saveMessage("");
     fetch(wasSaved ? "/api/saved/" + h.house_id : "/api/saved", {
@@ -245,7 +245,7 @@
       return res.json().catch(function () { return {}; }).then(function (body) {
         if (res.status === 401) { location.assign("/auth/login?next=" + encodeURIComponent("/map")); return; }
         // 이미 찜돼 있음(409) / 이미 취소돼 있음(404) 도 결과는 같은 상태로 맞춤
-        var nowSaved = res.ok ? !wasSaved : res.status === 409 ? true : (res.status === 404 && wasSaved) ? false : null;
+        const nowSaved = res.ok ? !wasSaved : res.status === 409 ? true : (res.status === 404 && wasSaved) ? false : null;
         if (nowSaved === null) throw new Error(body.error || "찜을 처리하지 못했어요");
         if (!state.house || state.house.house_id !== h.house_id) return;   // 그사이 다른 집으로 옮겼으면 그대로 둠
         h.is_saved = nowSaved;
@@ -261,7 +261,7 @@
   // [담당 C] 카드 정보 탭을 이 빈집의 리·동 기준으로 채워 상세 아래에 붙임 --지범 작업
   // (왼쪽 칸이 다시 그려질 때 떨어져 나가도 cardTabsEl 은 계속 갖고 있으므로 다시 붙이면 됨)
   function mountCardTabs(h) {   // --지범 작업
-    var slot = document.getElementById("cardTabsSlot");
+    const slot = document.getElementById("cardTabsSlot");
     if (!cardTabsEl || !slot) return;
     slot.appendChild(cardTabsEl);
     if (window.cardTabs) window.cardTabs.show(h.region_code);   // --지범 작업
@@ -269,7 +269,7 @@
 
   // ── 반경별 주변 상가 ──────────────────────────────────
   function loadStores() {
-    var h = state.house, q = [];
+    const h = state.house, q = [];
     if (state.radius) q.push("radius=" + state.radius);
     if (state.industry) q.push("industry=" + encodeURIComponent(state.industry));
     api("/api/houses/" + h.house_id + "/stores" + (q.length ? "?" + q.join("&") : "")).then(function (data) {
@@ -279,16 +279,16 @@
       renderStores();
       drawStores(true);
     }).catch(function (err) {
-      var box = document.getElementById("storesBox");
+      const box = document.getElementById("storesBox");
       if (box) box.innerHTML = '<h3>주변 상가</h3><p class="notice">' + esc(err.message) + "</p>";
     });
   }
 
   function renderStores() {
-    var box = document.getElementById("storesBox");
-    var d = state.stores;
+    const box = document.getElementById("storesBox");
+    const d = state.stores;
     if (!box || !d) return;
-    var html = "<h3>주변 상가</h3>";
+    let html = "<h3>주변 상가</h3>";
     if (!d.radii.length) {
       box.innerHTML = html + '<p class="mapx-empty">이 지역은 반경별 상가 자료가 없어요.</p>';
       return;
@@ -298,9 +298,9 @@
     }).join("") + "</div>";
     html += '<p class="stores-total">반경 ' + dist(d.radius) + " 안 가게 <b>" + d.total.toLocaleString("ko-KR") + "곳</b></p>";
 
-    var max = Math.max.apply(null, d.stats.map(function (s) { return s.store_count; }).concat([1]));
+    const max = Math.max.apply(null, d.stats.map(function (s) { return s.store_count; }).concat([1]));
     html += '<ul class="stat-list">' + d.stats.map(function (s) {
-      var on = s.industry_code === d.industry;
+      const on = s.industry_code === d.industry;
       return '<li><button type="button" class="stat" data-action="industry" data-code="' + esc(s.industry_code) + '" aria-pressed="' + on + '"' +
         (s.store_count ? "" : " disabled") + ">" + esc(s.name) +
         '<span class="stat-bar"><i style="width:' + (s.store_count / max * 100).toFixed(1) + '%"></i></span>' +
@@ -322,14 +322,14 @@
   // ── 가게 이름 링크 + 마우스를 올리면 나오는 안내 카드 ── --지범 작업
   // 가게 데이터에는 사진·평점·영업시간이 없어서, DB에 있는 정보만 카드로 보여 주고
   // 사진·리뷰는 이름을 누르면 열리는 카카오맵 검색으로 넘긴다.
-  var storeCard = document.createElement("div");   // --지범 작업
+  const storeCard = document.createElement("div");   // --지범 작업
   storeCard.className = "store-card";
   storeCard.hidden = true;
   storeCard.setAttribute("role", "tooltip");
   document.body.appendChild(storeCard);
 
   function kakaoPlaceUrl(s) {   // --지범 작업
-    var area = String(s.address || "").split(" ").slice(1, 3).join(" ");   // 예: "고창군 고창읍" (같은 이름 가게 구분용)
+    const area = String(s.address || "").split(" ").slice(1, 3).join(" ");   // 예: "고창군 고창읍" (같은 이름 가게 구분용)
     return "https://map.kakao.com/link/search/" + encodeURIComponent((s.name + " " + area).trim());
   }
 
@@ -340,7 +340,7 @@
   function hideStoreCard() { storeCard.hidden = true; }   // --지범 작업
 
   function showStoreCard(link) {   // --지범 작업
-    var s = state.stores && state.stores.stores[Number(link.dataset.store)];
+    const s = state.stores && state.stores.stores[Number(link.dataset.store)];
     if (!s) return;
     storeCard.innerHTML = '<p class="sc-name">' + esc(s.name) + "</p>" +
       '<p class="sc-kind">' + esc([s.industry_name, s.category].filter(Boolean).join(" · ")) + "</p>" +
@@ -348,9 +348,9 @@
       '<p class="sc-row">빈집 동네 중심에서 ' + dist(s.distance_m) + "</p>" +
       '<p class="sc-hint">이름을 누르면 카카오맵에서 사진·리뷰를 볼 수 있어요</p>';
     storeCard.hidden = false;
-    var w = storeCard.offsetWidth, h = storeCard.offsetHeight;
-    var r = link.getBoundingClientRect(), panel = side.getBoundingClientRect();
-    var x = panel.right + 12, y = r.top - 8, below = false;       // 넓은 화면: 왼쪽 칸 오른쪽 옆에
+    const w = storeCard.offsetWidth, h = storeCard.offsetHeight;
+    const r = link.getBoundingClientRect(), panel = side.getBoundingClientRect();
+    let x = panel.right + 12, y = r.top - 8, below = false;       // 넓은 화면: 왼쪽 칸 오른쪽 옆에
     if (x + w > window.innerWidth - 8) {                          // 좁은 화면: 가게 이름 바로 아래에
       x = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)); y = r.bottom + 6; below = true;
     }
@@ -359,18 +359,18 @@
     storeCard.style.top = Math.max(8, y) + "px";
   }
 
-  side.addEventListener("mouseover", function (e) { var l = e.target.closest(".store-link"); if (l) showStoreCard(l); });   // --지범 작업
+  side.addEventListener("mouseover", function (e) { const l = e.target.closest(".store-link"); if (l) showStoreCard(l); });   // --지범 작업
   side.addEventListener("mouseout", function (e) { if (e.target.closest(".store-link")) hideStoreCard(); });   // --지범 작업
-  side.addEventListener("focusin", function (e) { var l = e.target.closest(".store-link"); if (l) showStoreCard(l); });   // --지범 작업: 키보드
+  side.addEventListener("focusin", function (e) { const l = e.target.closest(".store-link"); if (l) showStoreCard(l); });   // --지범 작업: 키보드
   side.addEventListener("focusout", hideStoreCard);   // --지범 작업
   side.addEventListener("click", hideStoreCard);   // --지범 작업: 화면이 바뀌면 카드도 닫기
   window.addEventListener("scroll", hideStoreCard, true);   // --지범 작업
 
   // ── 왼쪽 칸 클릭 (한곳에서 처리) ──────────────────────
   side.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-action]");
+    const el = e.target.closest("[data-action]");
     if (!el || el.disabled) return;
-    var a = el.dataset.action;
+    const a = el.dataset.action;
     if (a === "overview") showOverview();
     else if (a === "region") selectRegion(el.dataset.code);
     else if (a === "intro") { state.cluster = null; showIntro(); }
@@ -392,7 +392,7 @@
     if (!(window.kakao && kakao.maps && kakao.maps.load)) {
       return fallback(".env 의 KAKAO_JS_KEY 와 카카오 개발자 콘솔의 사이트 도메인 등록을 확인하세요.");
     }
-    var timer = setTimeout(function () {
+    const timer = setTimeout(function () {
       fallback("카카오 개발자 콘솔에 지금 주소(" + location.origin + ")가 등록됐는지 확인하세요.");
     }, 6000);
     kakao.maps.load(function () {
@@ -409,7 +409,7 @@
 
   // 줌에 따라 원을 다르게: 멀리(GROUP_LEVEL 이상)는 읍·면으로 합친 원, 그보다 가까우면 리·동 원
   // 리·동 이름표는 LABEL_LEVEL 보다 가까울 때만 (161개 원이 겹쳐 보이지 않게)
-  var GROUP_LEVEL = 9, LABEL_LEVEL = 8;
+  const GROUP_LEVEL = 9, LABEL_LEVEL = 8;
 
   function drawClusters(fit) {
     if (!map) return;
@@ -421,12 +421,12 @@
     }
     if (!state.clusters.length) {
       clearClusterOverlays();
-      var r = currentRegion();
+      const r = currentRegion();
       if (fit && r.lat) { map.setCenter(new kakao.maps.LatLng(r.lat, r.lng)); map.setLevel(GROUP_LEVEL); }
       return;
     }
     if (fit) {
-      var bounds = new kakao.maps.LatLngBounds();
+      const bounds = new kakao.maps.LatLngBounds();
       state.clusters.forEach(function (c) { bounds.extend(new kakao.maps.LatLng(c.lat, c.lng)); });
       if (state.clusters.length === 1) { map.setCenter(bounds.getSouthWest()); map.setLevel(6); }
       else map.setBounds(bounds, 40, 40, 40, 40);
@@ -440,9 +440,9 @@
   }
 
   function clusterButton(count, label, aria, sizes) {
-    var size = count >= sizes[0] ? "l" : count >= sizes[1] ? "m" : "s";
-    var px = size === "l" ? 60 : size === "m" ? 50 : 40;
-    var el = document.createElement("button");
+    const size = count >= sizes[0] ? "l" : count >= sizes[1] ? "m" : "s";
+    const px = size === "l" ? 60 : size === "m" ? 50 : 40;
+    const el = document.createElement("button");
     el.type = "button";
     el.className = "cluster";
     el.dataset.size = size;
@@ -454,17 +454,17 @@
   function renderClusterLayer() {
     if (!map) return;
     clearClusterOverlays();
-    var level = map.getLevel();
+    const level = map.getLevel();
     mapEl.classList.toggle("is-far", level >= LABEL_LEVEL);
 
     if (!state.region) {
       // 지역 고르기 전: 시군마다 전체 빈집 수 원 하나 (누르면 그 지역으로)
       state.regions.forEach(function (r) {
         if (r.lat == null) return;
-        var b = clusterButton(r.house_count, r.name, r.name + " 빈집 " + r.house_count + "채, 눌러서 보기", [1, 0]);
+        const b = clusterButton(r.house_count, r.name, r.name + " 빈집 " + r.house_count + "채, 눌러서 보기", [1, 0]);
         b.el.classList.add("is-group");
         b.el.addEventListener("click", function () { selectRegion(r.region_code); });
-        var overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(r.lat, r.lng), content: b.el, yAnchor: b.yAnchor, zIndex: 2 });
+        const overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(r.lat, r.lng), content: b.el, yAnchor: b.yAnchor, zIndex: 2 });
         overlay.setMap(map);
         clusterOverlays.push({ code: null, overlay: overlay, el: b.el });
       });
@@ -473,20 +473,20 @@
 
     if (level >= GROUP_LEVEL) {
       // 읍·면(상위 지역)별로 합치기: 빈집 수 합, 위치는 빈집 수로 가중 평균
-      var groups = {}, order = [];
+      const groups = {}, order = [];
       state.clusters.forEach(function (c) {
-        var key = c.parent_name || c.name;
+        const key = c.parent_name || c.name;
         if (!groups[key]) { groups[key] = { name: key, count: 0, lat: 0, lng: 0 }; order.push(key); }
-        var g = groups[key];
+        const g = groups[key];
         g.count += c.house_count; g.lat += c.lat * c.house_count; g.lng += c.lng * c.house_count;
       });
       order.forEach(function (key) {
-        var g = groups[key];
-        var pos = new kakao.maps.LatLng(g.lat / g.count, g.lng / g.count);
-        var b = clusterButton(g.count, g.name, g.name + " 빈집 " + g.count + "채, 눌러서 확대", [60, 20]);
+        const g = groups[key];
+        const pos = new kakao.maps.LatLng(g.lat / g.count, g.lng / g.count);
+        const b = clusterButton(g.count, g.name, g.name + " 빈집 " + g.count + "채, 눌러서 확대", [60, 20]);
         b.el.classList.add("is-group");
         b.el.addEventListener("click", function () { map.setLevel(GROUP_LEVEL - 2, { anchor: pos }); });
-        var overlay = new kakao.maps.CustomOverlay({ position: pos, content: b.el, yAnchor: b.yAnchor, zIndex: 2 });
+        const overlay = new kakao.maps.CustomOverlay({ position: pos, content: b.el, yAnchor: b.yAnchor, zIndex: 2 });
         overlay.setMap(map);
         clusterOverlays.push({ code: null, overlay: overlay, el: b.el });
       });
@@ -494,9 +494,9 @@
     }
 
     state.clusters.forEach(function (c) {
-      var b = clusterButton(c.house_count, c.name, clusterName(c) + " 빈집 " + c.house_count + "채", [30, 10]);
+      const b = clusterButton(c.house_count, c.name, clusterName(c) + " 빈집 " + c.house_count + "채", [30, 10]);
       b.el.addEventListener("click", function () { selectCluster(c.region_code); });
-      var overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(c.lat, c.lng), content: b.el, yAnchor: b.yAnchor, zIndex: 2 });
+      const overlay = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(c.lat, c.lng), content: b.el, yAnchor: b.yAnchor, zIndex: 2 });
       overlay.setMap(map);
       clusterOverlays.push({ code: c.region_code, overlay: overlay, el: b.el });
     });
@@ -505,7 +505,7 @@
 
   function markSelectedCluster() {
     clusterOverlays.forEach(function (o) {
-      var on = o.code !== null && o.code === state.cluster;   // 읍·면 원(code null)은 선택 표시 안 함
+      const on = o.code !== null && o.code === state.cluster;   // 읍·면 원(code null)은 선택 표시 안 함
       o.el.classList.toggle("is-selected", on);
       o.overlay.setZIndex(on ? 3 : 2);
     });
@@ -521,8 +521,8 @@
   function drawStores(fit) { 
     if (!map || state.view !== "detail" || !state.stores || !state.stores.radius) return; 
     clearStores();
-    var d = state.stores;
-    var center = new kakao.maps.LatLng(d.center.lat, d.center.lng); /* 리,동 중심좌표 사용*/
+    const d = state.stores;
+    const center = new kakao.maps.LatLng(d.center.lat, d.center.lng); /* 리,동 중심좌표 사용*/
     circle = new kakao.maps.Circle({ /* 카카오 맵 기능 사용 */
       center: center, radius: d.radius,
       strokeWeight: 2, strokeColor: "#2D6A4F", strokeOpacity: .85, strokeStyle: "dashed",
@@ -530,13 +530,13 @@
     });
     circle.setMap(map);
     d.stores.forEach(function (s) { /*화면마다 가게에 작은 점 */
-      var dot = document.createElement("span");
+      const dot = document.createElement("span");
       dot.className = "store-dot";
       dot.title = s.name + " · " + s.industry_name;
-      var pos = new kakao.maps.LatLng(s.lat, s.lng);
+      const pos = new kakao.maps.LatLng(s.lat, s.lng);
       dot.addEventListener("mouseenter", function () { showTip(s, pos); });
       dot.addEventListener("click", function () { showTip(s, pos); });
-      var o = new kakao.maps.CustomOverlay({ position: pos, content: dot, zIndex: 1 }); /* 숫자 원 customoverlay */
+      const o = new kakao.maps.CustomOverlay({ position: pos, content: dot, zIndex: 1 }); /* 숫자 원 customoverlay */
       o.setMap(map);
       storeOverlays.push(o);
     });

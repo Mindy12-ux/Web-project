@@ -1,8 +1,8 @@
 /* 빈집을 잇다 — 머리글 메뉴 펼치기 (index.html) [담당 B]
    ☰ 버튼을 누르면 메뉴가 열리고, 바깥을 누르거나 Esc 를 누르면 닫힙니다. */
 (function () {
-  var btn  = document.getElementById("hdrMenuBtn"); // 4줄: ☰ 버튼
-  var menu = document.getElementById("hdrMenu"); // 5줄: 메뉴 카드
+  const btn  = document.getElementById("hdrMenuBtn"); // 4줄: ☰ 버튼
+  const menu = document.getElementById("hdrMenu"); // 5줄: 메뉴 카드
   if (!btn || !menu) return;
 
   function setOpen(open) { // 8–12줄: 열기/닫기 한곳에서
