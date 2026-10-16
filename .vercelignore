@@ -1,0 +1,6 @@
+data/
+db/
+scripts/
+docs/
+.env
+*.pdf

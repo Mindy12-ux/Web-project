@@ -223,3 +223,6 @@ __marimo__/
 data/raw/
 __pycache__/
 node_modules/
+
+# DB 이관용 덤프 (회원 정보 포함, docs/deploy.md 참고)
+itda_dump.sql

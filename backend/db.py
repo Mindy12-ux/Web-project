@@ -8,8 +8,18 @@
     # INSERT/UPDATE/DELETE 뒤에는 conn.commit() 필요
 """
 import os
+from pathlib import Path
 import pymysql
 from pymysql.cursors import DictCursor
+
+BACKEND_DIR = Path(__file__).resolve().parent
+
+
+def _ssl_options():
+    """DB_SSL_CA 가 있을 때만 TLS를 씀 (Aiven 같은 원격 DB용). 로컬 MariaDB는 비워 둠.
+    값은 backend 폴더 기준 상대 경로, 예: certs/aiven-ca.pem"""
+    ca = os.getenv("DB_SSL_CA")
+    return {"ca": str(BACKEND_DIR / ca)} if ca else None
 
 
 def get_conn():
@@ -21,4 +31,5 @@ def get_conn():
         database=os.getenv("DB_NAME", "itda"),
         charset="utf8mb4",
         cursorclass=DictCursor,                  # 결과를 dict로 받음 → 그대로 jsonify 가능
+        ssl=_ssl_options(),
     )
