@@ -49,8 +49,8 @@ def regions():
     with get_conn() as conn, conn.cursor() as cur:
         cur.execute("""
             SELECT r.region_code, r.name,
-                   CAST(r.latitude AS DOUBLE) AS lat, CAST(r.longitude AS DOUBLE) AS lng,
-                   COUNT(v.house_id) AS house_count
+                CAST(r.latitude AS DOUBLE) AS lat, CAST(r.longitude AS DOUBLE) AS lng,
+                COUNT(v.house_id) AS house_count
             FROM region r
             LEFT JOIN vacant_house v ON LEFT(v.region_code, 5) = LEFT(r.region_code, 5)
             WHERE r.`level` = 'sigungu'
@@ -72,14 +72,14 @@ def clusters(sigungu_code):
             return ok([])
         cur.execute(f"""
             SELECT r.region_code, r.name, p.name AS parent_name,
-                   CAST(r.latitude AS DOUBLE) AS lat, CAST(r.longitude AS DOUBLE) AS lng,
-                   COUNT(*) AS house_count
+                CAST(r.latitude AS DOUBLE) AS lat, CAST(r.longitude AS DOUBLE) AS lng,
+                COUNT(*) AS house_count
             FROM vacant_house v
             JOIN region r      ON r.region_code = v.region_code
             LEFT JOIN region p ON p.region_code = r.parents_code
             WHERE LEFT(v.region_code, 5) = LEFT(%s, 5)
-              AND v.grade_code IN ({placeholders(grades)})
-              AND r.latitude IS NOT NULL
+            AND v.grade_code IN ({placeholders(grades)})
+            AND r.latitude IS NOT NULL
             GROUP BY r.region_code, r.name, p.name, r.latitude, r.longitude
             ORDER BY house_count DESC, r.name
         """, (sigungu_code, *grades))
@@ -179,9 +179,9 @@ def house_stores(house_id):
         data_date = max((r["data_date"] for r in stat_rows), default=None)
 
         result = {"house_id": house_id, "region_code": house["region_code"],
-                  "center": {"lat": lat, "lng": lng}, "radii": radii, "radius": None,
-                  "data_date": data_date, "industry": industry, "total": 0,
-                  "stats": [], "stores": [], "limit": STORE_LIMIT}
+                "center": {"lat": lat, "lng": lng}, "radii": radii, "radius": None,
+                "data_date": data_date, "industry": industry, "total": 0,
+                "stats": [], "stores": [], "limit": STORE_LIMIT}
         if not radii or lat is None:
             return ok(result)
 
@@ -199,39 +199,42 @@ def house_stores(house_id):
                 return fail("없는 업종입니다", 400)
 
         # 반경을 감싸는 네모로 먼저 거르고(빠름), 정확한 거리는 DISTANCE_SQL 로
-        dlat = radius / 111320
-        dlng = radius / (111320 * math.cos(math.radians(lat)))
-        box = (lat - dlat, lat + dlat, lng - dlng, lng + dlng)
-        dist_args = (lat, lat, lng)
+        # ① 네모 범위 구하기: 반경(m)을 위도·경도 '도' 단위로 바꿈
+        dlat = radius / 111320                                   # 위도 1도 ≈ 111,320m
+        dlng = radius / (111320 * math.cos(math.radians(lat)))   # 경도 1도 길이는 위도가 높을수록 짧아져서 cos 로 보정
+        box = (lat - dlat, lat + dlat, lng - dlng, lng + dlng)   # 원을 딱 감싸는 네모 (남·북·서·동 끝)
+        dist_args = (lat, lat, lng)                              # 하버사인 공식(DISTANCE_SQL)에 넣을 빈집 좌표
 
+        # ② 업종별 가게 수 (왼쪽 칸 막대그래프): 반경 안 가게 '전체'를 셈
         cur.execute(f"""
             SELECT i.industry_code, i.name, COUNT(t.store_id) AS store_count
             FROM industry i
             LEFT JOIN (
                 SELECT s.store_id, s.industry_code FROM store s
-                WHERE s.latitude BETWEEN %s AND %s AND s.longitude BETWEEN %s AND %s
-                  AND {DISTANCE_SQL} <= %s
-            ) t ON t.industry_code = i.industry_code
-            WHERE i.for_stats
+                WHERE s.latitude BETWEEN %s AND %s AND s.longitude BETWEEN %s AND %s  -- 1차: 네모 안 가게만 (빠름)
+                AND {DISTANCE_SQL} <= %s                                            -- 2차: 실제 거리가 반경 안인 가게만 (정확)
+            ) t ON t.industry_code = i.industry_code   -- LEFT JOIN: 가게가 0곳인 업종도 0으로 나옴
+            WHERE i.for_stats                          -- 통계용 업종만
             GROUP BY i.industry_code, i.name, i.sort_order
             ORDER BY i.sort_order
         """, (*box, *dist_args, radius))
         result["stats"] = cur.fetchall()
-        result["total"] = sum(r["store_count"] for r in result["stats"])
+        result["total"] = sum(r["store_count"] for r in result["stats"])   # "반경 안 가게 OO곳"
 
+        # ③ 지도에 찍을 가게 목록 (빨간 점): 업종을 골랐으면 그 업종만
         industry_sql = "AND s.industry_code = %s" if industry else ""
         cur.execute(f"""
             SELECT s.store_id, s.name, s.category, s.industry_code, i.name AS industry_name,
-                   CAST(s.latitude AS DOUBLE) AS lat, CAST(s.longitude AS DOUBLE) AS lng,
-                   s.address, ROUND({DISTANCE_SQL}) AS distance_m
+                CAST(s.latitude AS DOUBLE) AS lat, CAST(s.longitude AS DOUBLE) AS lng,   -- 점을 찍을 가게 좌표
+                s.address, ROUND({DISTANCE_SQL}) AS distance_m                           -- 빈집에서 가게까지 거리(m)
             FROM store s
-            JOIN industry i ON i.industry_code = s.industry_code
+            JOIN industry i ON i.industry_code = s.industry_code   -- 업종 이름 붙이기
             WHERE i.for_stats
-              AND s.latitude BETWEEN %s AND %s AND s.longitude BETWEEN %s AND %s
+              AND s.latitude BETWEEN %s AND %s AND s.longitude BETWEEN %s AND %s   -- 1차: 네모로 거르기
               {industry_sql}
-            HAVING distance_m <= %s
-            ORDER BY distance_m
-            LIMIT %s
+            HAVING distance_m <= %s   -- 2차: 계산한 거리로 원 안 가게만 남김
+            ORDER BY distance_m       -- 가까운 순
+            LIMIT %s                  -- 최대 300곳 (STORE_LIMIT)
         """, (*dist_args, *box, *([industry] if industry else []), radius, STORE_LIMIT))
         result["stores"] = cur.fetchall()
     return ok(result)

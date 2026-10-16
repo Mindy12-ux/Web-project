@@ -518,25 +518,25 @@
     if (tip) tip.setMap(null);
   }
 
-  function drawStores(fit) {
-    if (!map || state.view !== "detail" || !state.stores || !state.stores.radius) return;
+  function drawStores(fit) { 
+    if (!map || state.view !== "detail" || !state.stores || !state.stores.radius) return; 
     clearStores();
     var d = state.stores;
-    var center = new kakao.maps.LatLng(d.center.lat, d.center.lng);
-    circle = new kakao.maps.Circle({
+    var center = new kakao.maps.LatLng(d.center.lat, d.center.lng); /* 리,동 중심좌표 사용*/
+    circle = new kakao.maps.Circle({ /* 카카오 맵 기능 사용 */
       center: center, radius: d.radius,
       strokeWeight: 2, strokeColor: "#2D6A4F", strokeOpacity: .85, strokeStyle: "dashed",
       fillColor: "#2D6A4F", fillOpacity: .06
     });
     circle.setMap(map);
-    d.stores.forEach(function (s) {
+    d.stores.forEach(function (s) { /*화면마다 가게에 작은 점 */
       var dot = document.createElement("span");
       dot.className = "store-dot";
       dot.title = s.name + " · " + s.industry_name;
       var pos = new kakao.maps.LatLng(s.lat, s.lng);
       dot.addEventListener("mouseenter", function () { showTip(s, pos); });
       dot.addEventListener("click", function () { showTip(s, pos); });
-      var o = new kakao.maps.CustomOverlay({ position: pos, content: dot, zIndex: 1 });
+      var o = new kakao.maps.CustomOverlay({ position: pos, content: dot, zIndex: 1 }); /* 숫자 원 customoverlay */
       o.setMap(map);
       storeOverlays.push(o);
     });

@@ -4,8 +4,8 @@
 
 {% block main %}
 {# 스크롤 길이만큼 stage가 화면에 고정되고, 그동안 1페이지 → 2페이지로 바뀝니다 (static/js/main.js) #}
-<main class="intro" id="intro">
-  <div class="stage" id="stage">
+<main class="intro" id="intro"> <!-- 긴 복도-->
+  <div class="stage" id="stage"> <!-- 복도 안에서 따라다니는 stage를 만든다.-->
 
     {# ── 1페이지 ── #}
     <svg class="bigword" viewBox="0 0 1000 250" preserveAspectRatio="none" aria-hidden="true">
@@ -14,7 +14,7 @@
 
     {# 대표 이미지: static/img/hero.jpg #}
     <div class="photo" id="photo"
-         style="--photo: url('{{ url_for('static', filename='img/hero.jpg') }}')"></div>
+        style="--photo: url('{{ url_for('static', filename='img/hero.jpg') }}')"></div>
     <div class="photo-anchor" id="photoAnchor" aria-hidden="true"></div>
     <div class="shade" aria-hidden="true"></div>
 
