@@ -91,13 +91,13 @@ pip install flask pymysql python-dotenv
 ```
 
 ### ③ 데이터베이스 만들기
-1. MariaDB를 설치하고 실행해요.
-2. HeidiSQL로 접속한 뒤 아래 둘 중 하나를 실행해요.
+1. MariaDB를 설치하고 실행.
+2. HeidiSQL로 접속한 뒤 아래 둘 중 하나를 실행.
    - 테이블 + 데이터 한 번에: 팀 백업 파일 `itda_backup.sql`을 열어 전체 실행(F9)
    - 테이블 구조만: `db/itda_schema.sql` 전체 실행 (내용은 [5. 테이블 생성 SQL](#5-테이블-생성-sql) 참고)
 
 ### ④ `.env` 파일 만들기
-프로젝트 최상위 폴더(`backend/`와 같은 위치)에 `.env` 파일을 만들고 자기 환경에 맞게 채워요.
+프로젝트 최상위 폴더(`backend/`와 같은 위치)에 `.env` 파일을 만들고 자기 환경에 맞게 항목을 채워넣는다.
 
 ```env
 DB_HOST=localhost
@@ -111,7 +111,7 @@ KAKAO_JS_KEY=카카오_JavaScript_키
 DATA_GO_KR_KEY=공공데이터포털_인증키
 ```
   ```
-- `KAKAO_JS_KEY`를 쓰려면 카카오 개발자 콘솔에서 카카오맵 사용 설정을 켜고, JavaScript SDK 도메인에 `http://127.0.0.1:5000`과 `http://localhost:5000`을 등록해야 한다.
+- `KAKAO_JS_KEY`를 쓰려면 카카오 개발자 콘솔에서 카카오맵 사용 설정을 켜고, JavaScript SDK 도메인에 `http://127.0.0.1:5000`과 `http://localhost:5000`을 등록한다.
 
 ### ⑤ 서버 실행
 프로젝트 최상위 폴더에서 실행한다.
@@ -150,7 +150,7 @@ Web-project/
 
 ## 5. 테이블 생성 SQL
 
-테이블 13개, 외래키 21개로 구성되어 있음. 파일은 `db/itda_schema.sql`에 있음.
+테이블 13개, 외래키 21개로 구성되어 있음. 테이블을 만드는 구문은 `db/itda_schema.sql`에 있으니 참고.
 
 | 영역 | 테이블 |
 | --- | --- |
